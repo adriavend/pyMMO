@@ -18,7 +18,10 @@ class Player(pygame.sprite.Sprite):
 
 
     def is_collision(self, wall):
-        return pygame.sprite.collide_rect(self.rect, wall)
+        for brick in wall:
+            if self.rect.colliderect(brick):
+                return True
+        return False
 
     def update(self):
         #screen.blit(self.imagen_player, self.rect)

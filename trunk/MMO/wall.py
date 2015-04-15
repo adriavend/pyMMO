@@ -9,7 +9,7 @@ class Wall(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.list_block = []
-        self.list_block.append(pygame.Rect(400, 50, config.BLOCK_WIDTH, 200))
+        self.list_block.append(pygame.Rect(400, 50, config.BLOCK_WIDTH, 120))
         # self.list_block.append(pygame.Rect(400, 70, config.BLOCK_WIDTH, config.BLOCK_HEIGHT))
         # self.list_block.append(pygame.Rect(400, 90, config.BLOCK_WIDTH, config.BLOCK_HEIGHT))
         # self.list_block.append(pygame.Rect(400, 110, config.BLOCK_WIDTH, config.BLOCK_HEIGHT))
