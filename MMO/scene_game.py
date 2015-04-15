@@ -25,10 +25,20 @@ class SceneGame(scene.Scene):
         self.collision = False
 
      def on_update(self):
+
+         """
+         Logica del Juego.
+         Manejo de Movimientos y Colisiones.
+         """
+         # 1°) Movemos el fondo y las paredes sin importar que halla o no colisiones.
          self.fondo_1.update(self.vx, self.vy)
          self.wall_1.update(self.vx, self.vy)
-         self.player_1.update()
-        #pass #pass -> No ejecuta nada.
+
+         # 2°) Ahora comprobamos si realmente hay colision entre el player con algun muro.
+         # En caso de existir colision -> Movemos en sentido contrario (volviendo a la posicion original que tenia antes)
+         if self.player_1.is_collision(self.wall_1.list_block):
+             self.fondo_1.update(-self.vx, -self.vy)
+             self.wall_1.update(-self.vx, -self.vy)
 
      def on_event(self, events):
         #pass
