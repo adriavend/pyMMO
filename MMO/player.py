@@ -10,7 +10,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         # self.imagen_player = pygame.image.load("men.png").convert_alpha()
-        self.imagen_player = graphics.load_image(config.sprites + "player.gif")
+        self.imagen_player = pygame.image.load(config.sprites+"tux.png").convert_alpha()
         self.estaMoviendo = False
         self.orientation = 0
         self.rect = self.imagen_player.get_rect()
