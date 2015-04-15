@@ -30,7 +30,7 @@ class SceneGame(scene.Scene):
          Logica del Juego.
          Manejo de Movimientos y Colisiones.
          """
-         # 1°) Movemos el fondo y las paredes sin importar que halla o no colisiones.
+         # 1°) Movemos el fondo y las paredes sin importar que halla o no colisiones. Ojo el player no se mueve
          self.fondo_1.update(self.vx, self.vy)
          self.wall_1.update(self.vx, self.vy)
 
@@ -39,6 +39,29 @@ class SceneGame(scene.Scene):
          if self.player_1.is_collision(self.wall_1.list_block):
              self.fondo_1.update(-self.vx, -self.vy)
              self.wall_1.update(-self.vx, -self.vy)
+
+         # 3°) Ahora comprobamos que si el fondo se mueve saliendose de la pantalla entonces que se empieze a mover el player
+         if self.fondo_1.rect.left > 0:
+             self.fondo_1.update(-self.vx, -self.vy)  #No se mueve. Regrega una direccion
+             self.wall_1.update(-self.vx, -self.vy) # No se mueve. Regrega una direccion
+             self.player_1.update(-self.vx, -self.vy) # Se mueve. Porque nunca le indicamos que se moviera
+         if self.player_1.rect.centerx < config.SCREEN_WIDTH /2:
+             self.fondo_1.update(-self.vx, -self.vy)  # Se mueve. Regrega una direccion
+             self.wall_1.update(-self.vx, -self.vy) # Se mueve. Regrega una direccion
+             self.player_1.update(-self.vx, -self.vy) # No Se mueve. Porque nunca le indicamos que se moviera
+
+         if self.fondo_1.rect.right < config.SCREEN_WIDTH:
+             self.fondo_1.update(-self.vx, -self.vy)
+             self.wall_1.update(-self.vx, -self.vy)
+             self.player_1.update(-self.vx, -self.vy)
+
+         # Controlo que el player no se salga
+         if self.player_1.rect.left == 0:
+             self.player_1.update(self.vx, self.vy)
+         if self.player_1.rect.right == config.SCREEN_WIDTH:
+             self.player_1.update(self.vx, self.vy)
+
+
 
      def on_event(self, events):
         #pass
@@ -93,3 +116,8 @@ class SceneGame(scene.Scene):
         self.wall_1.draw(screen)
         self.player_1.draw(screen)
         #pass
+
+     def moving(self):
+         self.fondo_1.update(-self.vx, -self.vy)
+         self.wall_1.update(-self.vx, -self.vy)
+         self.player_1.update(-self.vx, -self.vy)

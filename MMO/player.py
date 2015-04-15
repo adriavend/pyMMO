@@ -23,9 +23,8 @@ class Player(pygame.sprite.Sprite):
                 return True
         return False
 
-    def update(self):
-        #screen.blit(self.imagen_player, self.rect)
-        pass
+    def update(self, vx, vy):
+        self.rect.move_ip(-vx, -vy)
 
     def draw(self, screen):
         screen.blit(self.imagen_player, self.rect)
