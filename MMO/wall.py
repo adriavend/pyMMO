@@ -18,10 +18,11 @@ class Wall(pygame.sprite.Sprite):
 
         self.list_block.append(pygame.Rect(800, 150, config.BLOCK_WIDTH, config.BLOCK_HEIGHT))
 
-    def update(self):
-        pass
+    def update(self, vx, vy):
+        for block in self.list_block:
+            block.move_ip(-vx, -vy)
 
-    def draw(self, screen, vx, vy):
+    def draw(self, screen):
         for block in self.list_block:
             pygame.draw.rect(screen, config.COLOR_NARROW, block)
-            block.move_ip(-vx, -vy)
+

@@ -25,7 +25,10 @@ class SceneGame(scene.Scene):
         self.collision = False
 
      def on_update(self):
-        pass #pass -> No ejecuta nada.
+         self.fondo_1.update(self.vx, self.vy)
+         self.wall_1.update(self.vx, self.vy)
+         self.player_1.update()
+        #pass #pass -> No ejecuta nada.
 
      def on_event(self, events):
         #pass
@@ -76,11 +79,7 @@ class SceneGame(scene.Scene):
                     #     vy=0
 
      def on_draw(self, screen):
-        self.fondo_1.draw(screen, self.vx, self.vy)
-        self.wall_1.draw(screen, self.vx, self.vy)
+        self.fondo_1.draw(screen)
+        self.wall_1.draw(screen)
         self.player_1.draw(screen)
-
-        #screen.blit(self.fondo_1, (0, 0))
-
-
         #pass
