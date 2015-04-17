@@ -18,9 +18,10 @@ class SceneGame(scene.Scene):
 
         self.left_sigue_apretada, self.right_sigueapretada, self.up_sigueapretada, self.down_sigueapretada = False, False, False, False
 
-        self.fondo_1 = fondo.Fondo()
+        self.fondo_1 = fondo.Fondo(config.BACK_SCENE_GAME)
         self.wall_1 = wall.Wall()
         self.player_1 = player.Player()
+        self.caption = "MMO"
 
         self.collision = False
 

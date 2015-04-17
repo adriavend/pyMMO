@@ -22,6 +22,13 @@ music = "data/audio/music/"
 sounds = "data/audio/sounds/"
 levels = "levels"
 
+# Backgrounds
+BACK_SCENE_GAME = "data/graphics/backgrounds/back_game.gif"
+BACK_SCENE_MENU = "data/graphics/backgrounds/back_menu.gif"
+
+#Botones
+SPRITE_BOTON_START = "data/graphics/sprites/start.PNG"
+
 # Colours
 COLOR_WHITE = (255, 255, 255)
 COLOR_NARROW = (103, 64, 58)
