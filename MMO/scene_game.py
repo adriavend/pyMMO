@@ -54,7 +54,8 @@ class SceneGame(scene.Scene):
                  self.fondo_1.update(-self.vx, -self.vy)
                  self.wall_1.update(-self.vx, -self.vy)
                  self.player_1.update(-self.vx, -self.vy)
-
+             if self.fondo_1.rect.top > 0:
+                 self.moving()
 
              if self.fondo_1.rect.right < config.SCREEN_WIDTH:
                  self.fondo_1.update(-self.vx, -self.vy)
