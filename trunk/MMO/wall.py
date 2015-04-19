@@ -16,7 +16,8 @@ class Wall(pygame.sprite.Sprite):
         # self.list_block.append(pygame.Rect(400, 130, config.BLOCK_WIDTH, config.BLOCK_HEIGHT))
         # self.list_block.append(pygame.Rect(400, 150, config.BLOCK_WIDTH, config.BLOCK_HEIGHT))
 
-        self.list_block.append(pygame.Rect(800, 150, config.BLOCK_WIDTH, config.BLOCK_HEIGHT))
+        self.list_block.append(pygame.Rect(150, 350, 200, config.BLOCK_HEIGHT))
+        self.list_block.append(pygame.Rect(800, 150, config.BLOCK_WIDTH, 150))
 
     def update(self, vx, vy):
         for block in self.list_block:
