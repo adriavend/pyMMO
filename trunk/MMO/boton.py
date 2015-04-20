@@ -13,14 +13,9 @@ class Boton(pygame.sprite.Sprite):
         self.rect = self.imagen_actual.get_rect()
         self.rect.left, self.rect.top = (x, y)
 
-    def update(self, pantalla, cursor1):
+    def update(self, screen, cursor1):
         if cursor1.colliderect(self.rect):
             self.imagen_actual = self.imagen_seleccionada
         else:
             self.imagen_actual = self.imagen_normal
-
-        pantalla.blit(self.imagen_actual, self.rect)
-
-
-    def draw(self, screen):
-        screen.blit(self.imagen_normal, self.rect)
+        screen.blit(self.imagen_actual, self.rect)

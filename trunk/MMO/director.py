@@ -57,7 +57,6 @@ class Director:
     def change_scene(self, scene):
         "Altera la escena actual."
         self.scene = scene
-        pygame.display.set_caption(scene.caption)
 
     def quit(self):
         self.quit_flag = True

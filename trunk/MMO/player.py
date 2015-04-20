@@ -8,13 +8,22 @@ import graphics
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        # self.imagen_player = pygame.image.load("men.png").convert_alpha()
-        self.imagen_player = pygame.image.load(config.sprites+"tux.png").convert_alpha()
-        self.estaMoviendo = False
-        self.orientation = 0
-        self.rect = self.imagen_player.get_rect()
+        self.image_player_stop_right = pygame.image.load(config.PATH_SPRITES+"player_stop_right.png").convert_alpha()
+        self.image_player_go_right = pygame.image.load(config.PATH_SPRITES+"player_go_right.png").convert_alpha()
+        self.image_player_stop_left = pygame.image.load(config.PATH_SPRITES+"player_stop_left.png").convert_alpha()
+        self.image_player_go_left = pygame.image.load(config.PATH_SPRITES+"player_go_left.png").convert_alpha()
+        self.image_player_explosion = pygame.image.load(config.PATH_SPRITES+"explosion.png").convert_alpha()
+
+        self.imagenes = [[self.image_player_stop_right, self.image_player_go_right],[self.image_player_stop_left, self.image_player_go_left]]
+
+        self.image_current = 0
+        self.image = self.imagenes[self.image_current][0]
+
+        self.rect = self.image.get_rect()
         self.rect.top, self.rect.left = (config.SCREEN_HEIGHT / 2, config.SCREEN_WIDTH / 2)
 
+        self.is_moving = False
+        self.orientation = 0
 
     def is_collision(self, wall):
         for brick in wall:
@@ -22,8 +31,35 @@ class Player(pygame.sprite.Sprite):
                 return True
         return False
 
-    def update(self, vx, vy):
+    def is_collision_monsters(self, monsters):
+        for monst in monsters:
+            if self.rect.colliderect(monst.rect):
+                return True
+        return False
+
+    def update(self, vx, vy, t):
+
+        if (vx, vy) == (0, 0):
+            self.is_moving = False
+        else:
+            self.is_moving = True
+
+        if vx < 0:
+            self.orientation = 0
+        elif vx > 0:
+            self.orientation = 1
+
+        if t == 1 and self.is_moving:
+            self.next_image()
+
         self.rect.move_ip(-vx, -vy)
+        self.image = self.imagenes[self.orientation][self.image_current]
 
     def draw(self, screen):
-        screen.blit(self.imagen_player, self.rect)
+        screen.blit(self.image, self.rect)
+
+    def next_image(self):
+        self.image_current += 1
+
+        if self.image_current > len(self.imagenes) -1:
+            self.image_current = 0

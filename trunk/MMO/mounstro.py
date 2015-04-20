@@ -9,12 +9,9 @@ import config
 class Mounstro(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.imagen_player = pygame.image.load(config.sprites+"monsters.png").convert_alpha()
-        self.estaMoviendo = False
-        self.orientation = 0
+        self.imagen_player = pygame.image.load(config.PATH_SPRITES+"monsters.png").convert_alpha()
         self.rect = self.imagen_player.get_rect()
         self.rect.left, self.rect.top = (x, y)
-
 
     def is_collision(self, wall):
         for brick in wall:
