@@ -5,9 +5,9 @@ import pygame
 
 class Boton(pygame.sprite.Sprite):
 
-    def __init__(self, pathImagenNormal, pathImagenSeleccionada, x=200, y=200):
-        self.imagen_normal = pygame.image.load(pathImagenNormal).convert_alpha()
-        self.imagen_seleccionada = pygame.image.load(pathImagenSeleccionada).convert_alpha()
+    def __init__(self, path_image_normal, path_image_select, x=200, y=200):
+        self.imagen_normal = pygame.image.load(path_image_normal).convert_alpha()
+        self.imagen_seleccionada = pygame.image.load(path_image_select).convert_alpha()
         self.imagen_actual = self.imagen_normal
 
         self.rect = self.imagen_actual.get_rect()

@@ -27,7 +27,8 @@ BACK_SCENE_GAME = "data/graphics/backgrounds/back_game.gif"
 BACK_SCENE_MENU = "data/graphics/backgrounds/back_menu.gif"
 
 #Botones
-SPRITE_BOTON_START = "data/graphics/sprites/start.PNG"
+BOTON_START_NORMAL = "data/graphics/sprites/start.PNG"
+BOTON_START_SELECT = "data/graphics/sprites/start_select.PNG"
 
 # Colours
 COLOR_WHITE = (255, 255, 255)
