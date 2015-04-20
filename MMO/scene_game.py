@@ -17,12 +17,11 @@ class SceneGame(scene.Scene):
         self.vx = 0
         self.vy = 0
 
-        self.left_sigue_apretada, self.right_sigueapretada, self.up_sigueapretada, self.down_sigueapretada = False, False, False, False
+        self.left_sigueapretada, self.right_sigueapretada, self.up_sigueapretada, self.down_sigueapretada = False, False, False, False
 
         self.fondo_1 = fondo.Fondo(config.BACK_SCENE_GAME)
         self.wall_1 = wall.Wall()
         self.player_1 = player.Player()
-        self.caption = "MMO"
 
         self.mounstro_1 = mounstro.Mounstro(20, 300)
 
@@ -30,6 +29,8 @@ class SceneGame(scene.Scene):
 
         # Desactivamos el mouse de la pantalla
         pygame.mouse.set_visible(False)
+
+        self.t = 0
 
      def on_update(self):
 
@@ -51,28 +52,28 @@ class SceneGame(scene.Scene):
              if self.fondo_1.rect.left > 0:
                  self.fondo_1.update(-self.vx, -self.vy)  #No se mueve. Regrega una direccion
                  self.wall_1.update(-self.vx, -self.vy) # No se mueve. Regrega una direccion
-                 self.player_1.update(-self.vx, -self.vy) # Se mueve. Porque nunca le indicamos que se moviera
+                 self.player_1.update(-self.vx, -self.vy, self.t) # Se mueve. Porque nunca le indicamos que se moviera
              if self.player_1.rect.centerx < config.SCREEN_WIDTH /2:
                  self.fondo_1.update(-self.vx, -self.vy)  # Se mueve. Regrega una direccion
                  self.wall_1.update(-self.vx, -self.vy) # Se mueve. Regrega una direccion
-                 self.player_1.update(-self.vx, -self.vy) # No Se mueve. Porque nunca le indicamos que se moviera
+                 self.player_1.update(-self.vx, -self.vy, self.t) # No Se mueve. Porque nunca le indicamos que se moviera
              if self.player_1.rect.centerx > self.fondo_1.rect.right/2:
                  self.fondo_1.update(-self.vx, -self.vy)
                  self.wall_1.update(-self.vx, -self.vy)
-                 self.player_1.update(-self.vx, -self.vy)
+                 self.player_1.update(-self.vx, -self.vy, self.t)
              if self.fondo_1.rect.top > 0:
                  self.moving()
 
              if self.fondo_1.rect.right < config.SCREEN_WIDTH:
                  self.fondo_1.update(-self.vx, -self.vy)
                  self.wall_1.update(-self.vx, -self.vy)
-                 self.player_1.update(-self.vx, -self.vy)
+                 self.player_1.update(-self.vx, -self.vy, self.t)
 
              # Controlo que el player no se salga
              if self.player_1.rect.left == 0:
-                 self.player_1.update(self.vx, self.vy)
+                 self.player_1.update(self.vx, self.vy, self.t)
              if self.player_1.rect.right == config.SCREEN_WIDTH:
-                 self.player_1.update(self.vx, self.vy)
+                 self.player_1.update(self.vx, self.vy, self.t)
 
      def on_event(self, events):
         #pass
@@ -81,46 +82,50 @@ class SceneGame(scene.Scene):
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    #self.left_sigueapretada = True
+                    self.left_sigueapretada = True
                     self.vx =- speed_game
                 if event.key == pygame.K_RIGHT:
-                    #self.right_sigueapretada = True
+                    self.right_sigueapretada = True
                     self.vx = speed_game
                 if event.key == pygame.K_UP:
-                    #self.up_sigueapretada = True
+                    self.up_sigueapretada = True
                     self.vy =- speed_game
                 if event.key == pygame.K_DOWN:
-                    #self.down_sigueapretada = True
+                    self.down_sigueapretada = True
                     self.vy = speed_game
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
-                    self.vx = 0
-                    # self.left_sigueapretada = False
-                    # if self.right_sigueapretada:
-                    #     vx = speed_game
-                    # else:
-                    #     vx = 0
+                     self.vx = 0
+                     self.left_sigueapretada = False
+                     if self.right_sigueapretada:
+                         vx = speed_game
+                     else:
+                         vx = 0
                 if event.key == pygame.K_RIGHT:
-                    self.vx = 0
-                    # self.right_sigueapretada = False
-                    # if self.left_sigueapretada:
-                    #     vx =-speed_game
-                    # else:
-                    #     vx = 0
+                     self.vx = 0
+                     self.right_sigueapretada = False
+                     if self.left_sigueapretada:
+                         vx =-speed_game
+                     else:
+                         vx = 0
                 if event.key == pygame.K_UP:
                     self.vy = 0
-                    # self.up_sigueapretada = False
-                    # if self.down_sigueapretada:
-                    #     vy = speed_game
-                    # else:vy=-0
+                    self.up_sigueapretada = False
+                    if self.down_sigueapretada:
+                        vy = speed_game
+                    else:vy=-0
                 if event.key == pygame.K_DOWN:
                     self.vy = 0
-                    # self.down_sigueapretada=False
-                    # if self.up_sigueapretada:
-                    #     vy=-speed_game
-                    # else:
-                    #     vy=0
+                    self.down_sigueapretada=False
+                    if self.up_sigueapretada:
+                        y=-speed_game
+                    else:
+                        vy=0
+        self.t +=1
+
+        if self.t > 1:
+            self.t = 0
 
      def on_draw(self, screen):
         self.fondo_1.draw(screen)
@@ -132,4 +137,4 @@ class SceneGame(scene.Scene):
      def moving(self):
          self.fondo_1.update(-self.vx, -self.vy)
          self.wall_1.update(-self.vx, -self.vy)
-         self.player_1.update(-self.vx, -self.vy)
+         self.player_1.update(-self.vx, -self.vy, self.t)
