@@ -6,6 +6,7 @@ import config
 import player
 import fondo
 import wall
+import mounstro
 
 class SceneGame(scene.Scene):
      """Escena inicial del juego, esta es la primera que se carga cuando inicia"""
@@ -23,7 +24,12 @@ class SceneGame(scene.Scene):
         self.player_1 = player.Player()
         self.caption = "MMO"
 
+        self.mounstro_1 = mounstro.Mounstro(20, 300)
+
         self.collision = False
+
+        # Desactivamos el mouse de la pantalla
+        pygame.mouse.set_visible(False)
 
      def on_update(self):
 
@@ -67,8 +73,6 @@ class SceneGame(scene.Scene):
                  self.player_1.update(self.vx, self.vy)
              if self.player_1.rect.right == config.SCREEN_WIDTH:
                  self.player_1.update(self.vx, self.vy)
-
-
 
      def on_event(self, events):
         #pass
@@ -122,6 +126,7 @@ class SceneGame(scene.Scene):
         self.fondo_1.draw(screen)
         self.wall_1.draw(screen)
         self.player_1.draw(screen)
+        self.mounstro_1.draw(screen)
         #pass
 
      def moving(self):

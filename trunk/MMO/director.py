@@ -28,40 +28,8 @@ class Director:
         self.vy = 0
         self.left_sigue_apretada, self.right_sigueapretada, self.up_sigueapretada, self.down_sigueapretada = False, False, False, False
 
-
-    def start(self):
-        self.change_scene(scene_menu.SceneMenu(self))
-
-        while not self.scene.isBotonClickeado():
-            self.time = self.clock.tick(20)
-
-            #Eventos de Entrada
-            events = pygame.event.get()
-            for event in events:
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-
-            # Detecta Eventos
-            self.scene.on_event(events)
-
-            # Actualiza la Escena
-            self.scene.on_update()
-
-            # Dibuja la Pantalla
-            self.scene.on_draw(self.screen)
-
-            pygame.display.update()
-            # pygame.display.flip() #Actualizar la superficie de visualización por completo sobre la pantalla.
-
-        self.loop()
-
-
     def loop(self):
         "Pone en Funcionamiento el Juego"
-
-        self.change_scene(scene_game.SceneGame(self))
-
-
         while not self.quit_flag:
             self.screen.fill(config.COLOR_WHITE)
             self.time = self.clock.tick(20)
