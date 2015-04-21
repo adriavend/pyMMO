@@ -6,7 +6,6 @@ import pygame
 import director
 import scene_menu
 
-
 def main():
     dir = director.Director()
     scene_init = scene_menu.SceneMenu(dir)
