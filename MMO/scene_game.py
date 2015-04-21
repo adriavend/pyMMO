@@ -9,13 +9,12 @@ import wall
 import mounstro
 
 class SceneGame(scene.Scene):
-     """Escena inicial del juego, esta es la primera que se carga cuando inicia"""
+
      def __init__(self, director):
         scene.Scene.__init__(self, director)
 
         #Velocidades del Juego
-        self.vx = 0
-        self.vy = 0
+        self.vx, self.vy = (0, 0)
 
         self.left_sigueapretada, self.right_sigueapretada, self.up_sigueapretada, self.down_sigueapretada = False, False, False, False
 
@@ -25,8 +24,6 @@ class SceneGame(scene.Scene):
 
         self.mounstro_1 = mounstro.Mounstro(20, 300)
 
-        self.collision = False
-
         # Desactivamos el mouse de la pantalla
         pygame.mouse.set_visible(False)
 
@@ -35,12 +32,10 @@ class SceneGame(scene.Scene):
      def on_update(self):
 
          """
-         Logica del Juego.
-         Manejo de Movimientos y Colisiones.
+         Logica del Juego. Manejo de Movimientos y Colisiones.
          """
          # 1°) Movemos el fondo y las paredes sin importar que halla o no colisiones. Ojo el player no se mueve
-         self.fondo_1.update(self.vx, self.vy)
-         self.wall_1.update(self.vx, self.vy)
+         self.moving()
 
          # 2°) Ahora comprobamos si realmente hay colision entre el player con algun muro.
          # En caso de existir colision -> Movemos en sentido contrario (volviendo a la posicion original que tenia antes)
@@ -49,34 +44,25 @@ class SceneGame(scene.Scene):
              self.wall_1.update(-self.vx, -self.vy)
          else:
              # 3°) Ahora comprobamos que si el fondo se mueve saliendose de la pantalla entonces que se empieze a mover el player
-             if self.fondo_1.rect.left > 0:
+             if self.fondo_1.rect.left > 0 \
+                     or self.fondo_1.rect.right < config.SCREEN_WIDTH \
+                     or self.fondo_1.rect.top > 0 \
+                     or self.fondo_1.rect.bottom < config.SCREEN_HEIGHT: # Si el fondo se quiere desprender de la izquierda de la pantalla or de la derecha o arriba o abajo.
                  self.fondo_1.update(-self.vx, -self.vy)  #No se mueve. Regrega una direccion
                  self.wall_1.update(-self.vx, -self.vy) # No se mueve. Regrega una direccion
-                 self.player_1.update(-self.vx, -self.vy, self.t) # Se mueve. Porque nunca le indicamos que se moviera
-             if self.player_1.rect.centerx < config.SCREEN_WIDTH /2:
-                 self.fondo_1.update(-self.vx, -self.vy)  # Se mueve. Regrega una direccion
-                 self.wall_1.update(-self.vx, -self.vy) # Se mueve. Regrega una direccion
-                 self.player_1.update(-self.vx, -self.vy, self.t) # No Se mueve. Porque nunca le indicamos que se moviera
-             if self.player_1.rect.centerx > self.fondo_1.rect.right/2:
-                 self.fondo_1.update(-self.vx, -self.vy)
-                 self.wall_1.update(-self.vx, -self.vy)
-                 self.player_1.update(-self.vx, -self.vy, self.t)
-             if self.fondo_1.rect.top > 0:
-                 self.moving()
+                 self.player_1.update(self.vx, self.vy, self.t) # Se mueve. Porque nunca le indicamos que se moviera
+             else:
+                 self.player_1.update(self.vx/2, self.vy/2, self.t) # self.vx/2 reduce la velocidad a la mitad para que puede ir al medio de la pantalla.
 
-             if self.fondo_1.rect.right < config.SCREEN_WIDTH:
-                 self.fondo_1.update(-self.vx, -self.vy)
-                 self.wall_1.update(-self.vx, -self.vy)
-                 self.player_1.update(-self.vx, -self.vy, self.t)
-
-             # Controlo que el player no se salga
-             if self.player_1.rect.left == 0:
-                 self.player_1.update(self.vx, self.vy, self.t)
-             if self.player_1.rect.right == config.SCREEN_WIDTH:
-                 self.player_1.update(self.vx, self.vy, self.t)
+             # Controlamos que el player no se salga de la pantalla. Caso contrario volvemos una direccion
+             if self.player_1.rect.left == 0 \
+                     or self.player_1.rect.right > config.SCREEN_WIDTH\
+                     or self.player_1.rect.top == 0 \
+                     or self.player_1.rect.bottom > config.SCREEN_HEIGHT:
+                self.player_1.update(-self.vx, -self.vy, self.t)
+         #---------------------------------------------------------------------------------------------------------
 
      def on_event(self, events):
-        #pass
         speed_game = config.SPEED_GAME
 
         for event in events:
@@ -99,29 +85,30 @@ class SceneGame(scene.Scene):
                      self.vx = 0
                      self.left_sigueapretada = False
                      if self.right_sigueapretada:
-                         vx = speed_game
+                         self.vx = speed_game
                      else:
-                         vx = 0
+                         self.vx = 0
                 if event.key == pygame.K_RIGHT:
                      self.vx = 0
                      self.right_sigueapretada = False
                      if self.left_sigueapretada:
-                         vx =-speed_game
+                         self.vx =-speed_game
                      else:
-                         vx = 0
+                         self.vx = 0
                 if event.key == pygame.K_UP:
                     self.vy = 0
                     self.up_sigueapretada = False
                     if self.down_sigueapretada:
-                        vy = speed_game
-                    else:vy=-0
+                        self.vy = speed_game
+                    else:
+                        self.vy=-0
                 if event.key == pygame.K_DOWN:
                     self.vy = 0
                     self.down_sigueapretada=False
                     if self.up_sigueapretada:
-                        y=-speed_game
+                        self.vy=-speed_game
                     else:
-                        vy=0
+                        self.vy=0
         self.t +=1
 
         if self.t > 1:
@@ -132,9 +119,8 @@ class SceneGame(scene.Scene):
         self.wall_1.draw(screen)
         self.player_1.draw(screen)
         self.mounstro_1.draw(screen)
-        #pass
+        self.screen = screen
 
      def moving(self):
-         self.fondo_1.update(-self.vx, -self.vy)
-         self.wall_1.update(-self.vx, -self.vy)
-         self.player_1.update(-self.vx, -self.vy, self.t)
+         self.fondo_1.update(self.vx, self.vy)
+         self.wall_1.update(self.vx, self.vy)

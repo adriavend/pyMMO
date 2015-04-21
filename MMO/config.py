@@ -25,7 +25,7 @@ PATH_ICONS = "data/graphics/icons/"
 
 # Backgrounds
 BACK_SCENE_GAME = "data/graphics/backgrounds/back_game.gif"
-BACK_SCENE_MENU = "data/graphics/backgrounds/back_menu.gif"
+BACK_SCENE_MENU = "data/graphics/backgrounds/fondo_menu.jpg"
 
 
 # Colours
@@ -35,5 +35,5 @@ COLOR_GREEN = (0, 255, 0)
 COLOR_DARKGREEN = (0, 128, 0)
 
 # Blocks
-BLOCK_WIDTH = 40
-BLOCK_HEIGHT = 40
+BLOCK_WIDTH = 20
+BLOCK_HEIGHT = 20
