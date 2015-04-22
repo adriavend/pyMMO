@@ -4,7 +4,7 @@
 """ Configuracion General del Proyecto """
 
 # Nombre
-name = "MMO"
+NAME = "MMO"
 
 # Resolucion
 SCREEN_WIDTH = 640
@@ -33,7 +33,11 @@ COLOR_WHITE = (255, 255, 255)
 COLOR_NARROW = (103, 64, 58)
 COLOR_GREEN = (0, 255, 0)
 COLOR_DARKGREEN = (0, 128, 0)
+COLOR_BLACK = (0, 0, 0)
 
 # Blocks
 BLOCK_WIDTH = 20
 BLOCK_HEIGHT = 20
+
+# Banderas
+QUIT_FLAG = False # Bandera que indica si termina o no el juego

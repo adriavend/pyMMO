@@ -23,11 +23,14 @@ class SceneGame(scene.Scene):
         self.player_1 = player.Player()
 
         self.mounstro_1 = mounstro.Mounstro(20, 300)
+        self.mounstro_1.start()
 
         # Desactivamos el mouse de la pantalla
         pygame.mouse.set_visible(False)
 
         self.t = 0
+
+        self.font = pygame.font.Font(None, 92)
 
      def on_update(self):
 
@@ -42,6 +45,14 @@ class SceneGame(scene.Scene):
          if self.player_1.is_collision(self.wall_1.list_block):
              self.fondo_1.update(-self.vx, -self.vy)
              self.wall_1.update(-self.vx, -self.vy)
+             self.mounstro_1.update(-self.vx, -self.vy)
+         elif self.player_1.is_collision_monsters(self.mounstro_1):
+             self.fondo_1.update(-self.vx, -self.vy)
+             self.wall_1.update(-self.vx, -self.vy)
+             self.mounstro_1.update(-self.vx, -self.vy)
+             self.player_1.change_image_explosion()
+             self.mounstro_1.stop()
+             config.QUIT_FLAG = True
          else:
              # 3°) Ahora comprobamos que si el fondo se mueve saliendose de la pantalla entonces que se empieze a mover el player
              if self.fondo_1.rect.left > 0 \
@@ -50,6 +61,7 @@ class SceneGame(scene.Scene):
                      or self.fondo_1.rect.bottom < config.SCREEN_HEIGHT: # Si el fondo se quiere desprender de la izquierda de la pantalla or de la derecha o arriba o abajo.
                  self.fondo_1.update(-self.vx, -self.vy)  #No se mueve. Regrega una direccion
                  self.wall_1.update(-self.vx, -self.vy) # No se mueve. Regrega una direccion
+                 self.mounstro_1.update(-self.vx, -self.vy)
                  self.player_1.update(self.vx, self.vy, self.t) # Se mueve. Porque nunca le indicamos que se moviera
              else:
                  self.player_1.update(self.vx/2, self.vy/2, self.t) # self.vx/2 reduce la velocidad a la mitad para que puede ir al medio de la pantalla.
@@ -66,6 +78,8 @@ class SceneGame(scene.Scene):
         speed_game = config.SPEED_GAME
 
         for event in events:
+            if event.type == pygame.QUIT:
+                self.mounstro_1.stop()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     self.left_sigueapretada = True
@@ -109,6 +123,7 @@ class SceneGame(scene.Scene):
                         self.vy=-speed_game
                     else:
                         self.vy=0
+
         self.t +=1
 
         if self.t > 1:
@@ -119,8 +134,12 @@ class SceneGame(scene.Scene):
         self.wall_1.draw(screen)
         self.player_1.draw(screen)
         self.mounstro_1.draw(screen)
-        self.screen = screen
+
+        if config.QUIT_FLAG == True: # Termino el juego
+            text = self.font.render("GAME OVER", 0, config.COLOR_BLACK)
+            screen.blit(text, (100, 240))
 
      def moving(self):
          self.fondo_1.update(self.vx, self.vy)
          self.wall_1.update(self.vx, self.vy)
+         self.mounstro_1.update(self.vx, self.vy)
