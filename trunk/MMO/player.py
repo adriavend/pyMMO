@@ -31,9 +31,8 @@ class Player(pygame.sprite.Sprite):
                 return True
         return False
 
-    def is_collision_monsters(self, monsters):
-        for monst in monsters:
-            if self.rect.colliderect(monst.rect):
+    def is_collision_monsters(self, monster):
+        if self.rect.colliderect(monster.rect):
                 return True
         return False
 
@@ -62,3 +61,6 @@ class Player(pygame.sprite.Sprite):
 
         if self.image_current > len(self.imagenes) -1:
             self.image_current = 0
+
+    def change_image_explosion(self):
+        self.image = self.image_player_explosion

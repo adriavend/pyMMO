@@ -4,10 +4,7 @@
 # Módulos
 import pygame
 import config
-import scene_menu
-import scene_game
-import cursor
-
+import time
 
 class Director:
     """Representa el objeto Principal del Juego.
@@ -20,9 +17,8 @@ class Director:
 
     def __init__(self):
         self.screen = pygame.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
-        pygame.display.set_caption(config.name)
+        pygame.display.set_caption(config.NAME)
         self.scene = None
-        self.quit_flag = False
         self.clock = pygame.time.Clock()
         self.vx = 0
         self.vy = 0
@@ -30,7 +26,7 @@ class Director:
 
     def loop(self):
         "Pone en Funcionamiento el Juego"
-        while not self.quit_flag:
+        while not config.QUIT_FLAG:
             self.screen.fill(config.COLOR_WHITE)
             self.time = self.clock.tick(20)
 
@@ -52,6 +48,7 @@ class Director:
             pygame.display.update()
             # pygame.display.flip() #Actualizar la superficie de visualización por completo sobre la pantalla.
 
+        time.sleep(3)
         pygame.quit()
 
     def change_scene(self, scene):
