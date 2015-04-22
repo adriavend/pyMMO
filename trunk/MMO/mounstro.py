@@ -35,20 +35,31 @@ class Mounstro(pygame.sprite.Sprite, threading.Thread):
 
     #Como hereda de Thread hay que sobreescribir este metodo
     def run(self):
-        while self.stop_flag == False:
-            for (x, y) in ((0, -1), (0, -1), (0, -1), (0, -1), (0, -1), (0, -1), (0, 1), (0, 1), (0, 1), (0, 1), (0, 1), (0, 1)):
-                self.update(x, y)
-                #time.sleep(1)
+        count = 0
+        v = config.SPEED_GAME
+        t = -1
 
-        #rnd = random.randint(1,4)                      Bachi: probando movimiento aleatorio
-        #if rnd == 1:
-        #    self.update(-1,0)   #izquierda
-        #if rnd == 2:
-        #    self.update(1,0)    #derecha
-        #if rnd == 1:
-        #    self.update(0,1)    #arriba
-        #if rnd == 1:
-        #    self.update(0,-1)   #abajo
+        while self.stop_flag == False:
+            # Adrian: Propuesta de movimiento aleatorio
+            count += 1
+
+            if count < 15:
+                self.update(0, v*t)
+                time.sleep(0.2)
+            else:
+                count = 0
+                t = t*-1
+
+            # Bachi: probando movimiento aleatorio
+            # rnd = random.randint(1,4)
+            # if rnd == 1:
+            #    self.update(-1,0)   #izquierda
+            # if rnd == 2:
+            #    self.update(1,0)    #derecha
+            # if rnd == 1:
+            #    self.update(0,1)    #arriba
+            # if rnd == 1:
+            #    self.update(0,-1)   #abajo
 
     def stop(self):
         self.stop_flag = True
