@@ -19,7 +19,7 @@ class SceneGame(scene.Scene):
         self.left_sigueapretada, self.right_sigueapretada, self.up_sigueapretada, self.down_sigueapretada = False, False, False, False
 
         self.fondo_1 = fondo.Fondo(config.BACK_SCENE_GAME)
-        self.wall_1 = wall.Wall()
+        self.wall_1 = wall.Wall(config.PATH_MAPS + "map_1.txt")
         self.player_1 = player.Player()
 
         self.mounstro_1 = mounstro.Mounstro(20, 300)
