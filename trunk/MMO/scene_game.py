@@ -7,6 +7,7 @@ import player
 import fondo
 import wall
 import mounstro
+import cliente
 
 class SceneGame(scene.Scene):
 
@@ -22,6 +23,8 @@ class SceneGame(scene.Scene):
         self.wall_1 = wall.Wall(config.PATH_MAPS + "map_1.txt")
         self.player_1 = player.Player()
 
+        self.cliente = cliente.Cliente()
+
         self.mounstro_1 = mounstro.Mounstro(20, 300)
         self.mounstro_1.start()
 
@@ -33,6 +36,12 @@ class SceneGame(scene.Scene):
         self.font = pygame.font.Font(None, 92)
 
      def on_update(self):
+
+         #posicion = str(self.player_1.rect.top) +',' + str(self.player_1.rect.left)   ##para el server
+         #self.cliente.send(posicion)
+         #poscMonster = self.cliente.recv()
+         #posmonsterX = poscMonster[:2:]
+         #posmonsterY = poscMonster[3::]
 
          """
          Logica del Juego. Manejo de Movimientos y Colisiones.
