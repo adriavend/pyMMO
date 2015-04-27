@@ -8,8 +8,6 @@ import scene_menu
 
 def main():
     dir = director.Director()
-    scene_init = scene_menu.SceneMenu(dir)
-    dir.change_scene(scene_init)
     dir.loop()
 
 if __name__ == '__main__':

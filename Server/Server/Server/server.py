@@ -91,12 +91,19 @@ def clientthread(conn):
     while True:
          
         #Receiving from client
-        data = conn.recv(1024)
-        #reply = 'OK...' + data
-        monster1 = monster.Monster()
-        coor = monster1.posicion()
-        conn.sendall(coor)
+        try:
+            data = conn.recv(1024)
+            monster1 = monster.Monster()
+            coor = monster1.posicion()
+            conn.sendall(coor)
+
+        except socket.error as msg:
+            pass
+
+
         time.sleep(0.2)
+        #reply = 'OK...' + data
+
         #if not data: 
         #    break
         
@@ -110,6 +117,5 @@ def clientthread(conn):
 if __name__ == "__main__":
     main()
 
-
-def generarMundo():
+def generar_mundo():
     return monster.Monster()
