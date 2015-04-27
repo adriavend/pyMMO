@@ -27,7 +27,7 @@ class Player(pygame.sprite.Sprite):
 
     def is_collision(self, wall):
         for brick in wall:
-            if self.rect.colliderect(brick):
+            if self.rect.colliderect(brick.rect):
                 return True
         return False
 

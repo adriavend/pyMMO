@@ -5,9 +5,9 @@ import scene
 import config
 import player
 import fondo
-import wall
 import mounstro
 import cliente
+import map
 
 class SceneGame(scene.Scene):
 
@@ -20,7 +20,9 @@ class SceneGame(scene.Scene):
         self.left_sigueapretada, self.right_sigueapretada, self.up_sigueapretada, self.down_sigueapretada = False, False, False, False
 
         self.fondo_1 = fondo.Fondo(config.BACK_SCENE_GAME)
-        self.wall_1 = wall.Wall(config.PATH_MAPS + "map_1.txt")
+
+        self.map = map.Map(config.PATH_MAPS + "map_1.txt")
+
         self.player_1 = player.Player()
 
         self.cliente = cliente.Cliente()
@@ -51,13 +53,13 @@ class SceneGame(scene.Scene):
 
          # 2°) Ahora comprobamos si realmente hay colision entre el player con algun muro.
          # En caso de existir colision -> Movemos en sentido contrario (volviendo a la posicion original que tenia antes)
-         if self.player_1.is_collision(self.wall_1.list_block):
+         if self.player_1.is_collision(self.map.list_brick):
              self.fondo_1.update(-self.vx, -self.vy)
-             self.wall_1.update(-self.vx, -self.vy)
+             self.map.update(-self.vx, -self.vy)
              self.mounstro_1.update(-self.vx, -self.vy)
          elif self.player_1.is_collision_monsters(self.mounstro_1):
              self.fondo_1.update(-self.vx, -self.vy)
-             self.wall_1.update(-self.vx, -self.vy)
+             self.map.update(-self.vx, -self.vy)
              self.mounstro_1.update(-self.vx, -self.vy)
              self.player_1.change_image_explosion()
              self.mounstro_1.stop()
@@ -69,7 +71,7 @@ class SceneGame(scene.Scene):
                      or self.fondo_1.rect.top > 0 \
                      or self.fondo_1.rect.bottom < config.SCREEN_HEIGHT: # Si el fondo se quiere desprender de la izquierda de la pantalla or de la derecha o arriba o abajo.
                  self.fondo_1.update(-self.vx, -self.vy)  #No se mueve. Regrega una direccion
-                 self.wall_1.update(-self.vx, -self.vy) # No se mueve. Regrega una direccion
+                 self.map.update(-self.vx, -self.vy) # No se mueve. Regrega una direccion
                  self.mounstro_1.update(-self.vx, -self.vy)
                  self.player_1.update(self.vx, self.vy, self.t) # Se mueve. Porque nunca le indicamos que se moviera
              else:
@@ -88,7 +90,7 @@ class SceneGame(scene.Scene):
 
         for event in events:
             if event.type == pygame.QUIT:
-                self.mounstro_1.stop()
+                self.stop()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     self.left_sigueapretada = True
@@ -140,7 +142,7 @@ class SceneGame(scene.Scene):
 
      def on_draw(self, screen):
         self.fondo_1.draw(screen)
-        self.wall_1.draw(screen)
+        self.map.draw(screen)
         self.player_1.draw(screen)
         self.mounstro_1.draw(screen)
 
@@ -150,5 +152,8 @@ class SceneGame(scene.Scene):
 
      def moving(self):
          self.fondo_1.update(self.vx, self.vy)
-         self.wall_1.update(self.vx, self.vy)
+         self.map.update(self.vx, self.vy)
          self.mounstro_1.update(self.vx, self.vy)
+
+     def stop(self):
+         self.mounstro_1.stop()
