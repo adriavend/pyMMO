@@ -47,13 +47,16 @@ import time
 import monster
 import socket
 import sys
+import client_connection
 from thread import *
  
 HOST = ''   # Symbolic name meaning all available interfaces
 PORT = 6969 # Arbitrary non-privileged port
  
 def main():
-    print 'Generando mundo'
+
+    #clientConn = client_connection.ClientConnection()
+    #clientConn.start()
 
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -74,7 +77,7 @@ def main():
  
     #now keep talking with the client
     while 1:
-    #wait to accept a connection - blocking call
+        #wait to accept a connection - blocking call
         conn, addr = s.accept()
         print 'Connected with ' + addr[0] + ':' + str(addr[1])
      
@@ -83,27 +86,20 @@ def main():
  
     s.close()
 
-
 #Function for handling connections. This will be used to create threads
 def clientthread(conn):
-   
+    
+    monster1 = monster.Monster()
     #infinite loop so that function do not terminate and thread do not end.
     while True:
          
         #Receiving from client
-        try:
-            data = conn.recv(1024)
-            monster1 = monster.Monster()
-            coor = monster1.posicion()
-            conn.sendall(coor)
-
-        except socket.error as msg:
-            pass
-
-
-        time.sleep(0.2)
+        data = conn.recv(1024)
         #reply = 'OK...' + data
 
+        coor = monster1.posicion()
+        conn.sendall(coor)
+        time.sleep(0.05)
         #if not data: 
         #    break
         
@@ -114,8 +110,13 @@ def clientthread(conn):
     conn.close()
 
 
+    
+
+
+
 if __name__ == "__main__":
     main()
 
-def generar_mundo():
+
+def generarMundo():
     return monster.Monster()

@@ -30,7 +30,7 @@ class Monster(threading.Thread):
 
             if count < 15:
                 self.y = (v*t)
-                time.sleep(0.2)
+                time.sleep(0.1)
             else:
                 count = 0
                 t = t*-1
@@ -54,11 +54,17 @@ class Monster(threading.Thread):
 
     def posicion(self):
        self.count += 1
-       if self.count > 15:
-           self.y = (self.v*self.t)
+       mov = 0
+       if self.count < 15:
+           mov = (self.v*self.t)
        else:
            self.count = 0
            self.t= self.t*-1
 
-       return str(self.x) +',' + str(self.y)
+       if mov == 0:
+           return "00,00"
+       else:
+           return "00" +',' + str(mov)
+
+       
 
