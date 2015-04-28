@@ -26,6 +26,7 @@ class SceneGame(scene.Scene):
         self.player_1 = player.Player()
 
         self.cliente = cliente.Cliente()
+        #self.cliente.connect()
 
         self.mounstro_1 = mounstro.Mounstro(20, 300)
         self.mounstro_1.start()
@@ -39,11 +40,7 @@ class SceneGame(scene.Scene):
 
      def on_update(self):
 
-         #posicion = str(self.player_1.rect.top) +',' + str(self.player_1.rect.left)   ##para el server
-         #self.cliente.send(posicion)
-         #poscMonster = self.cliente.recv()
-         #posmonsterX = poscMonster[:2:]
-         #posmonsterY = poscMonster[3::]
+         #self.serverUpdate()
 
          """
          Logica del Juego. Manejo de Movimientos y Colisiones.
@@ -157,3 +154,11 @@ class SceneGame(scene.Scene):
 
      def stop(self):
          self.mounstro_1.stop()
+
+     def serverUpdate(self):
+         posicion = str(self.player_1.rect.top) +',' + str(self.player_1.rect.left)   ##para el server
+         self.cliente.send(posicion)
+         poscMonster = self.cliente.recv()
+         posmonsterX = str(poscMonster[:2:])
+         posmonsterY = str(poscMonster[3::])
+         self.mounstro_1.serverUpdate(posmonsterX,posmonsterY)
