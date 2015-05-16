@@ -64,3 +64,12 @@ class Player(pygame.sprite.Sprite):
 
     def change_image_explosion(self):
         self.image = self.image_player_explosion
+
+    def getPosition(self):
+        #posX = str(self.rect.left)
+        #posY = str(self.rect.top)     
+        
+        return str(self.rect.x) +',' + str(self.rect.y)
+
+    def serverUpdate(self,x,y):
+        self.rect.move_ip(int(x),int(y))
