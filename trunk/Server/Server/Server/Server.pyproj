@@ -25,10 +25,22 @@
     <Compile Include="client_connection.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="client_number.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="config.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="info_receive.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="mapa.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="monster.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="player.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="server.py" />

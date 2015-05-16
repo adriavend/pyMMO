@@ -25,7 +25,7 @@ class SceneGame(scene.Scene):
 
         self.player_1 = player.Player()
 
-        self.cliente = cliente.Cliente()
+        self.cliente = cliente.Cliente(self.player_1.getPosition())#
         #self.cliente.connect()
 
         self.mounstro_1 = mounstro.Mounstro(20, 300)
@@ -40,8 +40,8 @@ class SceneGame(scene.Scene):
 
      def on_update(self):
 
-         #self.serverUpdate()
-
+         self.serverUpdate()
+         self.cliente.refreshPlayerPosition(self.player_1.getPosition())
          """
          Logica del Juego. Manejo de Movimientos y Colisiones.
          """
@@ -156,9 +156,18 @@ class SceneGame(scene.Scene):
          self.mounstro_1.stop()
 
      def serverUpdate(self):
-         posicion = str(self.player_1.rect.top) +',' + str(self.player_1.rect.left)   ##para el server
-         self.cliente.send(posicion)
-         poscMonster = self.cliente.recv()
-         posmonsterX = str(poscMonster[:2:])
-         posmonsterY = str(poscMonster[3::])
-         self.mounstro_1.serverUpdate(posmonsterX,posmonsterY)
+         event = self.cliente.hasEvent()
+         if(event != False):
+             if event.getEvent() == "update":
+                 updateMonster(event.getMonsterPosition())
+
+         #posicion = str(self.player_1.rect.top) +',' + str(self.player_1.rect.left)   ##para el server
+         #self.cliente.send(posicion)
+         #poscMonster = self.cliente.recv()
+         #posmonsterX = str(poscMonster[:2:])
+         #posmonsterY = str(poscMonster[3::])
+         #self.mounstro_1.serverUpdate(posmonsterX,posmonsterY)
+
+
+     def updateMonster(self,x,y):
+        self.mounstro_1.serverUpdate(x,y)

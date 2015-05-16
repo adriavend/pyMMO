@@ -30,11 +30,17 @@
     <Compile Include="fondo.py" />
     <Compile Include="funciones.py" />
     <Compile Include="graphics.py" />
+    <Compile Include="info_receive.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="main.py" />
     <Compile Include="map.py" />
     <Compile Include="mounstro.py" />
     <Compile Include="player.py" />
     <Compile Include="port.py" />
+    <Compile Include="receive_player_information.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="scene.py" />
     <Compile Include="scene_game.py" />
     <Compile Include="scene_menu.py" />
