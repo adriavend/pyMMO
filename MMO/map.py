@@ -1,7 +1,6 @@
 __author__ = 'Adrian'
 
 import funciones
-import wall
 import config
 import brick
 import port
@@ -34,6 +33,7 @@ class Map():
     def draw(self, screen):
         for brick in self.list_brick:
             brick.draw(screen)
+
         self.port.draw(screen)
 
     def update(self, vx, vy):

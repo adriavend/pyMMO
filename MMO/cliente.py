@@ -77,7 +77,7 @@ class Cliente():
                 playerInfo = receive_player_information.ReceivePlayerInformation(num,pos)
                 returnList.append(playerInfo)
 
-            return info_receive.InfoReceive(event,pMons,returnList,PlayerNum)
+            return info_receive.InfoReceive(event,pMons,returnList,self.PlayerNum)
 
         except Exception as excp:
             mensaje = excp.message

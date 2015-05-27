@@ -22,7 +22,7 @@ class Director:
         self.clock = pygame.time.Clock()
         self.vx = 0
         self.vy = 0
-        self.left_sigue_apretada, self.right_sigueapretada, self.up_sigueapretada, self.down_sigueapretada = False, False, False, False
+        #self.left_sigue_apretada, self.right_sigueapretada, self.up_sigueapretada, self.down_sigueapretada = False, False, False, False
         self.scene = scene_menu.SceneMenu(self)
 
     def loop(self):

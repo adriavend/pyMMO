@@ -25,6 +25,11 @@ class Player(pygame.sprite.Sprite):
         self.is_moving = False
         self.orientation = 0
 
+        self.posX = self.rect.x
+        self.posY = self.rect.y
+
+        self.id = 0
+
     def is_collision(self, wall):
         for brick in wall:
             if self.rect.colliderect(brick.rect):
@@ -65,11 +70,12 @@ class Player(pygame.sprite.Sprite):
     def change_image_explosion(self):
         self.image = self.image_player_explosion
 
-    def getPosition(self):
-        #posX = str(self.rect.left)
-        #posY = str(self.rect.top)     
-        
-        return str(self.rect.x) +',' + str(self.rect.y)
-
-    def serverUpdate(self,x,y):
-        self.rect.move_ip(int(x),int(y))
+    """
+        Part for Server.
+        ----------------
+        Metodo que actuliza la posicion segun le indique el server. Este metodo es para actulizar los players que estan
+         en el mapa.
+    """
+    def server_update(self,x,y):
+        self.rect.left = x
+        self.rect.top = y
