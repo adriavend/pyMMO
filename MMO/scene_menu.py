@@ -1,4 +1,4 @@
-from pygame.constants import KEYDOWN, K_BACKSPACE, K_RETURN, K_MINUS
+from pygame.constants import KEYDOWN, K_BACKSPACE, K_RETURN, K_MINUS, K_TAB, K_INSERT
 import scene_game
 
 __author__ = 'Adrian'
@@ -51,7 +51,7 @@ class SceneMenu(scene.Scene):
                 inkey = event.key
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.cursor.colliderect(self.btn_start_rect):
-                    scene_next = scene_game.SceneGame(self.dir)
+                    scene_next = scene_game.SceneGame(self.dir, self.nickname, self.password)
                     self.dir.change_scene(scene_next)
                     self.dir.loop
                     break
@@ -64,7 +64,6 @@ class SceneMenu(scene.Scene):
                 if self.cursor.colliderect(self.password_text_rect):
                     self.current_string = self.password
                     self.band = True
-                    
 
         if inkey is None:
             pass
@@ -74,13 +73,18 @@ class SceneMenu(scene.Scene):
             pass
         elif inkey == K_MINUS:
             self.current_string.append("_")
+        elif inkey == K_TAB:
+            self.current_string = self.password
+            self.band = True
+        elif inkey == K_INSERT:
+            scene_next = scene_game.SceneGame(self.dir, self.nickname, self.password)
+            self.dir.change_scene(scene_next)
+            self.dir.loop
         elif inkey <= 127:
             char = chr(inkey)
-            print char
             # self.nickname.append(char)
             self.current_string += char
-            # self.current_string += char
-            # print self.current_string
+            # self.current_string += charan
 
         if self.band:
             self.password = self.current_string
@@ -104,10 +108,10 @@ class SceneMenu(scene.Scene):
         self.password_border_rect = pygame.draw.rect(screen, config.COLOR_WHITE, ((screen.get_width() / 4), 120, (screen.get_width() / 2), 40), 1)
 
         screen.blit(fontobject.render("Nickname:", 1, config.COLOR_BLACK),
-                        ((screen.get_width() / 4) - 150, 40 + 8))
+                        ((screen.get_width() / 4), 10))
 
         screen.blit(fontobject.render("Password:", 1, config.COLOR_BLACK),
-                        ((screen.get_width() / 4) - 150, 120 + 8))
+                        ((screen.get_width() / 4), 90))
 
         if len(nickname) != 0:
             screen.blit(fontobject.render(str(nickname), 1, config.COLOR_WHITE),

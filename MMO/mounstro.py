@@ -27,7 +27,7 @@ class Mounstro(pygame.sprite.Sprite,threading.Thread):
         self.image_player = pygame.image.load(config.PATH_SPRITES+"monsters.png").convert_alpha()
         self.rect = self.image_player.get_rect()
         self.rect.left, self.rect.top = (x, y)
-        self.stop_flag = False    
+        self.stop_flag = config.QUIT_FLAG
 
     def is_collision(self, wall):
         for brick in wall:

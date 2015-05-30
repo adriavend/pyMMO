@@ -11,10 +11,11 @@ import map
 from PodSixNet.Connection import ConnectionListener, connection
 from time import sleep
 
-
 class SceneGame(scene.Scene, ConnectionListener):
-    def __init__(self, director):
+    def __init__(self, director, nickname, password):
         scene.Scene.__init__(self, director)
+
+        pygame.mouse.set_visible(False)
 
         # Velocidades del Juego
         self.vx, self.vy = (0, 0)
@@ -22,43 +23,36 @@ class SceneGame(scene.Scene, ConnectionListener):
         self.left_sigueapretada, self.right_sigueapretada, self.up_sigueapretada, self.down_sigueapretada = False, False, False, False
 
         self.fondo_1 = fondo.Fondo(config.BACK_SCENE_GAME)
-
         self.map = map.Map(config.PATH_MAPS + "map_1.txt")
-
-        self.player_1 = player.Player()
-
-        self.list_players = []
-
+        self.player_1 = player.Player(0, nickname)
+        self.others_players = []
         self.mounstro_1 = mounstro.Mounstro(20, 300)
         #self.mounstro_1.start()
 
-        # Desactivamos el mouse de la pantalla
-        pygame.mouse.set_visible(False)
-
         self.t = 0
-
         self.font = pygame.font.Font(None, 92)
 
-        #<Server>
-        self.Connect()
-        # #</Server>
+        # PARTE SERVER
+        # 1º) Nos conectamos.
+        self.Connect() #Sobre carga host and port.
 
-        self.running = False
+        self.nickname = nickname
+        self.password = password
 
-        while not self.running:
-            self.Pump()
-            connection.Pump()
-            sleep(0.01)
+        self.execute_sequence = 0
+        self.run = False
 
+        # FIN PARTE SERVER>
 
     def on_update(self):
-        # <Server>
-        connection.Pump()
-        self.Pump()  # llama a Network_startgame()
-        #</Server>
 
-        # self.serverUpdate()
-        # self.cliente.refreshPlayerPosition(self.player_1.getPosition())
+        # PARTE SERVER
+
+        connection.Pump()
+        self.Pump()
+
+        # FIN PARTE SERVER>
+
         """
          Logica del Juego. Manejo de Movimientos y Colisiones.
          """
@@ -78,6 +72,12 @@ class SceneGame(scene.Scene, ConnectionListener):
             self.player_1.change_image_explosion()
             self.mounstro_1.stop()
             config.QUIT_FLAG = True
+            """
+                Envia la señal de desconexion al server para que nos borre del mismo.
+                Esto se procesara en el metedo Close() de ClientChannel.
+            """
+            connection.Close()
+            print self.print_sequence(), "Desconetado del Server..."
         else:
             # 3°) Ahora comprobamos que si el fondo se mueve saliendose de la pantalla entonces que se empieze a mover el player
             if self.fondo_1.rect.left > 0 \
@@ -101,7 +101,7 @@ class SceneGame(scene.Scene, ConnectionListener):
         #---------------------------------------------------------------------------------------------------------
 
         # Si existe movimiento ... entonces mandamos las coordenas la servidor.
-        # if not (self.vx, self.vy) == (0, 0):
+        if self.run:
             """
              A continuacion se detalle la logica del posicionamiento.
              Debido a que el fondo es el que se mueve. Entonces debemos plantear un eje de coordenadas de acuerdo al fondo
@@ -120,17 +120,17 @@ class SceneGame(scene.Scene, ConnectionListener):
              * Obtenencion de x e y en la otra ventana de todos los clientes de acuerdo en que posicion esten SUS fondos.
              other_player.server_update(self.fondo_1.rect.left + x, self.fondo_1.rect.top + y)
              """
-        x = abs(self.fondo_1.rect.left) + self.player_1.rect.left
-        y = abs(self.fondo_1.rect.top) + self.player_1.rect.top
-        self.Send({"action": "place", "x": x, "y": y,
-                   "id_player": self.player_1.id})
-        sleep(0.01)
+            x = abs(self.fondo_1.rect.left) + self.player_1.rect.left
+            y = abs(self.fondo_1.rect.top) + self.player_1.rect.top
+            self.Send({"action": "updatemoving", "x": x, "y": y, "id_player": self.player_1.id})
+            sleep(0.01)
 
     def on_event(self, events):
         speed_game = config.SPEED_GAME
 
         for event in events:
             if event.type == pygame.QUIT:
+                print "stoop"
                 self.stop()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
@@ -192,8 +192,8 @@ class SceneGame(scene.Scene, ConnectionListener):
             screen.blit(text, (100, 240))
 
         # Part for Server - Dibuja todos los players online que estan en el server.
-        if not self.list_players == None:
-            for p in self.list_players:
+        if not self.others_players == None:
+            for p in self.others_players:
                 p.draw(screen)
 
     def moving(self):
@@ -207,27 +207,92 @@ class SceneGame(scene.Scene, ConnectionListener):
     ##############################################
     # PARTE SERVER #
     ##############################################
-    """
-        Metodo que se ejecuta cuando se conecta el cliente al server.
-     """
 
-    def Network_startgame(self, data):
-        self.running = True
-
-        cant_players_online = int(data["players"])
-
-        for i in range(cant_players_online):
-            self.list_players.append(player.Player())
-
-        self.player_1.id = int(data["id_player"])
-
-    def Network_place(self, data):
+    """ Metodo que actualiza la posicion de los demas players. """
+    def Network_updateplayers(self, data):
         id = int(data["id_player"])
-        p = self.list_players[id - 2]
+        p = self.get_player(id)
         p.server_update(self.fondo_1.rect.left + int(data["x"]), self.fondo_1.rect.top + int(data["y"]))
 
-    """
-        Metodo que se ejecuta cuando se conecta un nuevo player al server.
-    """
+    """ Obtiene el player pasado como parametro. """
+    def get_player(self, id):
+        for p in self.others_players:
+            if (p.id == id):
+                return p
+
+    """ Metodo que se ejecuta cuando se conecta un nuevo player al server. """
     def Network_newplayer(self, data):
-        self.list_players.append(player.Player())
+        self.others_players.append(player.Player())
+
+    """ 2º) Metodo que se ejecuta cuando se conecta el player al canal del server. """
+    def Network_channel(self, data):
+        self.player_1.str_channel = data["channel"]
+        print self.print_sequence(), "Recibo de canal ..."
+
+        self.Send_login(self.nickname, self.password)
+
+    """ 3º) Envio de datos de logueo. """
+    def Send_login(self, nickname, password):
+        self.Send({"action": "login", "channel": self.player_1.str_channel, "nickname": nickname, "password": password})
+        print self.print_sequence(), "Envio de logueo...."
+
+    """
+        4º) Metodo de respuesta de logueo. El server va a llamar a este metodo para indicar si el logueo fue exitoso o no.
+    """
+    def Network_login(self, data):
+
+        print self.print_sequence(), "Recibo de Logueo ..."
+
+        id = data["id_player"]
+
+        if id == 0: #Logueo Fallado.
+            print self.print_sequence(), "Logueo Fallado...."
+            exit()
+        else:
+            self.player_1.id = id
+            print self.print_sequence(), "Logueo Exitoso..."
+            self.run = True
+
+    """ N) Al cerrar la conexion con el Server (connection.Close()), se ejecuta este metodo. """
+    def Network_disconnected(self, data):
+        print self.print_sequence(), "Server disconnected"
+        # exit()
+
+    """ 1º) Al conectarse un player al Server se ejecuta este metodo automaticamente. """
+    def Network_connected(self, data):
+        print self.print_sequence(), "Player connected to the server"
+
+    """ Imprime y define las secuencias de ejecucion en el Server. """
+    def print_sequence(self):
+        self.execute_sequence += 1
+        return self.execute_sequence
+
+    """ Crea  y añade un nuevo player al juego. """
+    def Network_newplayer(self, data):
+        id = int(data["id_player"])
+        nickname = data["nickname"]
+        x = int(data["x"])
+        y = int(data["y"])
+
+        p = player.Player(id, nickname)
+
+        self.others_players.append(p)
+        p.server_update(self.fondo_1.rect.left + x, self.fondo_1.rect.top + y)
+        print self.print_sequence(), "Recibiendo y creando informacion de Player: ", nickname
+
+    """ Elimina un player que se halla desconectado del server. """
+    def Network_delplayer(self, data):
+        id = int(data["id_player"])
+
+        find = None
+
+        for p in self.others_players:
+            if p.id == id:
+                find = p
+                break
+
+        pos = self.others_players.index(find)
+
+        del self.others_players[pos]
+
+        print self.print_sequence(), "Player desconectado: ", find.nickname

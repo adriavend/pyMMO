@@ -3,6 +3,7 @@ __author__ = 'Adrian'
 import PodSixNet.Channel
 import PodSixNet.Server
 from time import sleep
+import db_controller
 
 """
     Clase que representa un cliente conectado. Representa un canal.. osea un medio para poder enviar y recibir informacion.
@@ -16,43 +17,109 @@ class ClientChannel(PodSixNet.Channel.Channel):
         Metodo que representa la informacion que envia el cliente al server con la invocacion self.send(data).
         Colocar aca y procesar la informacion quie envia el cliente.
     """
-    def Network_place(self, data):
+    def Network_updatemoving(self, data):
         #self._server = MMOServer !!!!
-        self._server.placeMov(int(data["id_player"]), int(data["x"]), int(data["y"]))
+        self._server.updatemoving(int(data["id_player"]), int(data["x"]), int(data["y"]))
 
+    """ Metodo que recibe los datos de login del player para iniciarse y los envia al servidor. """
+    def Network_login(self, data):
+        nickname = data["nickname"]
+        password = data["password"]
+        channel = data["channel"]
+
+        self._server.login(channel, nickname, password)
+
+    """ Metodo que se ejecuta cuando en el cliente llama a 'connection.Close()'. """
+    def Close(self):
+        self._server.Del_player(self)
+
+"""
+    SERVER !!!
+"""
 class MMOServer(PodSixNet.Server.Server):
 
     def __init__(self, *args, **kwargs):
         PodSixNet.Server.Server.__init__(self, *args, **kwargs)
-        self.players = []
-        self.game = None
-        self.current_index_player = 0
+        self.db_conn = db_controller.DbController()
+        self.temp_channels = []
+        self.game = Game()
 
     channelClass = ClientChannel
 
-    # Codigo que se ejecuta cuando se conecta un nuevo player.
+    """ Codigo que se ejecuta cuando se conecta un nuevo player. """
     def Connected(self, channel, addr):
-        self.current_index_player += 1 #Si se ejectuta este metodo entonces un cliente se habra conectado.
 
-        print 'new connection:', channel, ' - player: ', self.current_index_player
+        print 'new connection:', channel
 
-        #Si el juego no existe ... lo creamos.
-        if self.game == None:
-            self.game = Game()
+        # Enviamos al cliente que se ha conectado el channel (en string).
+        # En el cliente es el metodo Network_channel()
+        channel.Send({"action": "channel", "channel": str(channel)})
+        print "Envio de canal...:"
 
-        #Enviamos al cliente que se ha conectado el id que le asigno el servidor. En el cliente es el metodo Network_startgame()
-        channel.Send({"action": "startgame", "id_player": self.current_index_player, "players": len(self.game.players)})
+        self.temp_channels.append(channel)
 
-        player = Player(self.current_index_player, channel)
+    """ Actualiza posicion del player pasado como parametro. """
+    def updatemoving(self, id, pos_x, pos_y):
+        self.game.updatemoving(id, pos_x, pos_y)
 
-        #Avisamos a los demas player que un nuevo player se ha conectado.
-        for p in self.game.players:
-            p.channel.Send({"action": "newplayer", "id_player": self.current_index_player})
+    """ Metodo de procesamiento de login del player. """
+    def login(self, channel, nickname, password):
 
-        self.game.players.append(player)
+        ch = self.get_channel(channel)
 
-    def placeMov(self, id, pos_x, pos_y):
-        self.game.placeMov(id, pos_x, pos_y)
+        id_player = self.db_conn.retriev(nickname, password)
+
+        if id_player == 0:
+            ch.Send({"action": "login", "id_player": 0})
+            print "Envio de id 0"
+        else:
+            ch.Send({"action": "login", "id_player": id_player})
+            print "Envio de id exitosamente"
+
+            player = PlayerServer(id_player)
+            player.nickname = nickname
+            player.password = password
+            player.channel = ch
+
+            print "Player creado exitosamente en server. Cant. Players en Linea: ", len(self.game.players)
+
+            #Colocar aca el envio de los demas players al player nuevo.
+            for p in self.game.players:
+                ch.Send({"action": "newplayer", "id_player": p.id, "x": p.pos_x, "y": p.pos_y, "nickname": p.nickname})
+
+            #Informamos a los demas players que un player nuevo se ha conectado
+            for p in self.game.players:
+                p.channel.Send({"action": "newplayer", "id_player": player.id, "x": 320, "y": 240, "nickname": player.nickname})
+
+            self.game.players.append(player)
+
+    """ Obtiene el canal de acuerdo a la cadena pasada como parametro. """
+    def get_channel(self, channel):
+        ch = None
+
+        for item in self.temp_channels:
+            if channel == str(item):
+                ch = item
+                break
+
+        pos = self.get_pos_channel(ch)
+
+        self.del_channel(pos)
+
+        return ch
+
+    """ Elimina un canal de la lista. """
+    def del_channel(self, pos):
+        del self.temp_channels[pos]
+
+    """ Devuelve la posicion del canal en la lista, pasada como parametro. """
+    def get_pos_channel(self, channel):
+        return self.temp_channels.index(channel)
+
+    """ Elimina el player del servidor. """
+    def Del_player(self, channel):
+        self.game.delplayer(channel)
+
 
 """
     Clase del juego, representar todos los elementos del juego: un par de clientes hasta el momento.
@@ -65,7 +132,7 @@ class Game:
         Cuando el cliente se mueve y envia su posicion este metodo actualiza su poscion d acuerdo al player que sea.
         Tambien se encargara de enviarle a todos los player la posicion de todos los jugadores que hallan en el mapa.
     """
-    def placeMov(self, id, pos_x, pos_y):
+    def updatemoving(self, id, pos_x, pos_y):
 
         find_player = None
 
@@ -79,18 +146,41 @@ class Game:
 
         for p2 in self.players:
             if (p2 != find_player):
-                find_player.channel.Send({"action": "place", "id_player": p2.id, "x": p2.pos_x, "y": p2.pos_y})
+                find_player.channel.Send({"action": "updateplayers", "id_player": p2.id, "x": p2.pos_x, "y": p2.pos_y})
 
+    """ Busca y elimina una player del juego. """
+    def delplayer(self, channel):
+        pos = 0
+        p_id = 0
+
+        for p in self.players:
+            if not p.channel == channel:
+                pos +=1
+            else:
+                p_id = p.id
+                break
+
+        del self.players[pos]
+
+        self.send_delplayer(p_id)
+
+    """ Notifica a todos los players del juego que jugador (id) se ha desconectado. """
+    def send_delplayer(self, id):
+        for p in self.players:
+            p.channel.Send(({"action": "delplayer", "id_player": id}))
 
 """
     Clase que representa un cliente el cual tiene los datos necesarios para el manejo en el servidor.
 """
-class Player:
-    def __init__(self, id, channel):
+class PlayerServer:
+    def __init__(self, id):
         self.id = id
-        self.channel = channel
+        self.channel = None
         self.pos_x = 0
         self.pos_y = 0
+        self.map = 1
+        self.nickname = ""
+        self.password = ""
 
 print "STARTING SERVER ON LOCALHOST"
 mmo_server = MMOServer()

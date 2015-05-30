@@ -5,7 +5,7 @@ import pygame
 import config
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, id, nickname):
         pygame.sprite.Sprite.__init__(self)
 
         self.image_player_stop_right = pygame.image.load(config.PATH_SPRITES+"player_stop_right.png").convert_alpha()
@@ -28,7 +28,14 @@ class Player(pygame.sprite.Sprite):
         self.posX = self.rect.x
         self.posY = self.rect.y
 
-        self.id = 0
+        self.id = id
+        self.nickname = nickname
+
+        self.rect_nickname = None
+
+        self.font_object = pygame.font.Font(None, 16)
+
+        self.str_channel = ""
 
     def is_collision(self, wall):
         for brick in wall:
@@ -57,9 +64,14 @@ class Player(pygame.sprite.Sprite):
 
         self.image = self.imagenes[self.orientation][self.image_current]
         self.rect.move_ip(vx, vy)
+        if not self.rect_nickname == None:
+            self.rect_nickname.move_ip(vx, vy)
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
+        self.rect_nickname = pygame.draw.rect(screen, config.COLOR_NARROW, (self.rect.left - 4, self.rect.top - 10, 40, 10), 0)
+        screen.blit(self.font_object.render(self.nickname, 1, config.COLOR_WHITE),
+                        (self.rect.left - 4, self.rect.top - 10))
 
     def next_image(self):
         self.image_current += 1
