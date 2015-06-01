@@ -34,7 +34,6 @@ class DbController:
         pass
 
     def retriev(self, nickname, password):
-        print "user", (nickname, password)
         cur = self.get_cursor()
         cur.execute("SELECT * FROM Player WHERE Nickname = ? AND Password = ?", (nickname, password))
         row = cur.fetchone() #Devuelve una sola fila.

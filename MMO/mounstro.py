@@ -17,11 +17,12 @@ import exceptions
 #log = open("c:/Facultad/Arquitectura de Software/log"+str(datetime.now().microsecond)+".txt","w")
 
 
-class Mounstro(pygame.sprite.Sprite,threading.Thread):
+# class Mounstro(pygame.sprite.Sprite,threading.Thread):
+class Mounstro(pygame.sprite.Sprite):
     def __init__(self, x, y):
         #threading.Thread.__init__(self)
         pygame.sprite.Sprite.__init__(self)
-        threading.Thread.__init__(self)
+        # threading.Thread.__init__(self)
 
         #Como hereda de Sprite hay que asignar estos atributos y el metodo update
         self.image_player = pygame.image.load(config.PATH_SPRITES+"monsters.png").convert_alpha()
@@ -46,36 +47,22 @@ class Mounstro(pygame.sprite.Sprite,threading.Thread):
         screen.blit(self.image_player, self.rect)
 
     #Como hereda de Thread hay que sobreescribir este metodo
-    def run(self):
-        count = 0
-        v = config.SPEED_GAME
-        t = -1
-
-        while self.stop_flag == False:
-            # Adrian: Propuesta de movimiento aleatorio
-            count += 1
-
-            if count < 15:
-                self.update(0, v*t)
-                time.sleep(0.2)
-            else:
-                count = 0
-                t = t*-1
-                #archivo.close()    #Para monitorear los movimientos del monstruo
-           
-                
-
-
-            # Bachi: probando movimiento aleatorio
-            # rnd = random.randint(1,4)
-            # if rnd == 1:
-            #    self.update(-1,0)   #izquierda
-            # if rnd == 2:
-            #    self.update(1,0)    #derecha
-            # if rnd == 1:
-            #    self.update(0,1)    #arriba
-            # if rnd == 1:
-            #    self.update(0,-1)   #abajo
+    # def run(self):
+    #     count = 0
+    #     v = config.SPEED_GAME
+    #     t = -1
+    #
+    #     while self.stop_flag == False:
+    #         # Adrian: Propuesta de movimiento aleatorio
+    #         count += 1
+    #
+    #         if count < 15:
+    #             self.update(0, v*t)
+    #             time.sleep(0.2)
+    #         else:
+    #             count = 0
+    #             t = t*-1
+    #             #archivo.close()    #Para monitorear los movimientos del monstruo
 
     def serverUpdate(self,x,y):
         #try:

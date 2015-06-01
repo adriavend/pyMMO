@@ -43,9 +43,10 @@ class Player(pygame.sprite.Sprite):
                 return True
         return False
 
-    def is_collision_monsters(self, monster):
-        if self.rect.colliderect(monster.rect):
-                return True
+    def is_collision_monsters(self, monsters):
+        for monster in monsters:
+            if self.rect.colliderect(monster.rect):
+                    return True
         return False
 
     def update(self, vx, vy, t):
@@ -64,6 +65,7 @@ class Player(pygame.sprite.Sprite):
 
         self.image = self.imagenes[self.orientation][self.image_current]
         self.rect.move_ip(vx, vy)
+
         if not self.rect_nickname == None:
             self.rect_nickname.move_ip(vx, vy)
 
@@ -88,6 +90,7 @@ class Player(pygame.sprite.Sprite):
         Metodo que actuliza la posicion segun le indique el server. Este metodo es para actulizar los players que estan
          en el mapa.
     """
-    def server_update(self,x,y):
+    def server_update(self, x, y, o, t):
+        self.image = self.imagenes[o][t]
         self.rect.left = x
         self.rect.top = y

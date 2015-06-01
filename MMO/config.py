@@ -15,17 +15,15 @@ SPEED_GAME = 10
 
 # Directorios
 PATH_SPRITES = "data/graphics/sprites/"
-backs = "data/graphics/backgrounds/"
+PATH_BACKS = "data/graphics/backgrounds/"
 menus = "data/graphics/menus/"
 fonts = "data/fonts/"
 music = "data/audio/music/"
 sounds = "data/audio/sounds/"
 levels = "levels"
 PATH_ICONS = "data/graphics/icons/"
-PATH_MAPS = "data/maps/"
 
 # Backgrounds
-BACK_SCENE_GAME = "data/graphics/backgrounds/back_game.gif"
 BACK_SCENE_MENU = "data/graphics/backgrounds/fondo_menu.jpg"
 
 # Colours
