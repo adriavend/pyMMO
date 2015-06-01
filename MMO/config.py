@@ -24,7 +24,7 @@ levels = "levels"
 PATH_ICONS = "data/graphics/icons/"
 
 # Backgrounds
-BACK_SCENE_MENU = "data/graphics/backgrounds/fondo_menu.jpg"
+BACK_SCENE_MENU = "data/graphics/backgrounds/back_menu.png"
 
 # Colours
 COLOR_WHITE = (255, 255, 255)

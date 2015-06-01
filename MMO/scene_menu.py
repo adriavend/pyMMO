@@ -11,12 +11,11 @@ import boton
 import fondo
 import sys
 import string
-
+import director
 
 class SceneMenu(scene.Scene):
-    def __init__(self, director):
-        scene.Scene.__init__(self, director)
-        self.dir = director
+    def __init__(self):
+        scene.Scene.__init__(self)
         self.fondo = fondo.Fondo(config.BACK_SCENE_MENU)
         self.btn_start = boton.Boton(config.PATH_ICONS + "start.png", config.PATH_ICONS + "start_select.png", x=240,
                                      y=220)
@@ -51,9 +50,10 @@ class SceneMenu(scene.Scene):
                 inkey = event.key
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.cursor.colliderect(self.btn_start_rect):
-                    scene_next = scene_game.SceneGame(self.dir, self.nickname, self.password)
-                    self.dir.change_scene(scene_next)
-                    self.dir.loop
+                    scene_next = scene_game.SceneGame(self.nickname, self.password)
+                    dir = director.SingletonDirector()
+                    dir.change_scene(scene_next)
+                    dir.loop
                     break
                 if self.cursor.colliderect(self.btn_exit_rect):
                     sys.exit()

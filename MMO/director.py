@@ -7,7 +7,14 @@ import config
 import time
 import scene_menu
 
-class Director:
+class SingletonDirector(object):
+
+    """ Implementacion de un Singleton """
+    def __new__(cls):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(SingletonDirector, cls).__new__(cls)
+        return cls.instance
+
     """Representa el objeto Principal del Juego.
 	
 	El objeto Director mantiene en funcionamiento el juego, se
@@ -23,7 +30,7 @@ class Director:
         self.vx = 0
         self.vy = 0
         #self.left_sigue_apretada, self.right_sigueapretada, self.up_sigueapretada, self.down_sigueapretada = False, False, False, False
-        self.scene = scene_menu.SceneMenu(self)
+        self.scene = scene_menu.SceneMenu()
 
     def loop(self):
         "Pone en Funcionamiento el Juego"

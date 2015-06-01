@@ -28,9 +28,9 @@ class Map():
                 char = self.mapa[f][c]
                 if char == 'B':
                     self.list_brick.append(brick.Brick(x, y))
-                if char == 'P':
+                elif char == 'P':
                     self.port = port.Port(x, y)
-                if char == 'M':
+                elif char == 'M':
                     self.list_monsters.append(mounstro.Mounstro(x, y))
 
     def draw(self, screen):

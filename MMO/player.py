@@ -37,7 +37,7 @@ class Player(pygame.sprite.Sprite):
 
         self.str_channel = ""
 
-    def is_collision(self, wall):
+    def is_collision_brick(self, wall):
         for brick in wall:
             if self.rect.colliderect(brick.rect):
                 return True
@@ -47,6 +47,11 @@ class Player(pygame.sprite.Sprite):
         for monster in monsters:
             if self.rect.colliderect(monster.rect):
                     return True
+        return False
+
+    def is_collision_port(self, port):
+        if self.rect.colliderect(port.rect):
+            return True
         return False
 
     def update(self, vx, vy, t):

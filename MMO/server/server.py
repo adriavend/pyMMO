@@ -7,6 +7,7 @@ import PodSixNet.Server
 import db_controller
 import funciones
 import config
+import random
 
 """
     Clase que representa un cliente conectado. Representa un canal.. osea un medio para poder enviar y recibir informacion.
@@ -49,7 +50,7 @@ class MMOServer(PodSixNet.Server.Server):
         PodSixNet.Server.Server.__init__(self, *args, **kwargs)
         self.db_conn = db_controller.DbController()
         self.temp_channels = []
-        self.game = Game()
+        self.game = Game(1)
 
     channelClass = ClientChannel
 
@@ -138,10 +139,29 @@ class MMOServer(PodSixNet.Server.Server):
     Clase del juego, representar todos los elementos del juego: un par de clientes hasta el momento.
 """
 class Game:
-    def __init__(self):
-        self.map = funciones.leer_mapa(config.PATH_MAPS+"map_1.txt")
+    def __init__(self, id_mapa):
+        path = "%smap_%s.txt" % (config.PATH_MAPS, str(id_mapa))
+        self.map = funciones.leer_mapa(path)
         print "Mapa leido exitosamente ..."
-        self.background = "back_game_1.gif"
+
+        fil = len(self.map)
+        col = len(self.map[0])
+
+        cant = random.randrange(20)
+        count = 0
+
+        while count != cant:
+
+            rf = random.randrange(fil)
+            rc = random.randrange(col)
+
+            if self.map[rf][rc] == '.':
+                self.map[rf][rc] = 'M'
+                count +=1
+
+        print cant, "Moustros Aleatorios Generados Exitosamente ..."
+
+        self.background = "back_game_%s.gif" % (id_mapa)
 
         self.players = []
 

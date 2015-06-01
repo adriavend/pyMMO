@@ -7,13 +7,14 @@ import player
 import fondo
 import map
 import sys
+import director
 
 from PodSixNet.Connection import ConnectionListener, connection
 from time import sleep
 
 class SceneGame(scene.Scene, ConnectionListener):
-    def __init__(self, director, nickname, password):
-        scene.Scene.__init__(self, director)
+    def __init__(self, nickname, password):
+        scene.Scene.__init__(self)
 
         pygame.mouse.set_visible(False)
 
@@ -24,7 +25,7 @@ class SceneGame(scene.Scene, ConnectionListener):
 
         self.fondo = fondo.Fondo(config.PATH_BACKS + "none.gif")
         self.map_number = 1
-        self.map = None#map.Map(config.PATH_MAPS + "map_1.txt")
+        self.map = None #map.Map(config.PATH_MAPS + "map_1.txt")
         self.player_1 = player.Player(0, nickname)
         self.others_players = []
 
@@ -62,7 +63,7 @@ class SceneGame(scene.Scene, ConnectionListener):
 
         # 2°) Ahora comprobamos si realmente hay colision entre el player con algun muro.
         # En caso de existir colision -> Movemos en sentido contrario (volviendo a la posicion original que tenia antes)
-        if self.player_1.is_collision(self.map.list_brick):
+        if self.player_1.is_collision_brick(self.map.list_brick):
             self.fondo.update(-self.vx, -self.vy)
             self.map.update(-self.vx, -self.vy)
         elif self.player_1.is_collision_monsters(self.map.list_monsters):
@@ -76,6 +77,10 @@ class SceneGame(scene.Scene, ConnectionListener):
             """
             connection.Close()
             print self.print_sequence(), "Desconetado del Server..."
+        elif self.player_1.is_collision_port(self.map.port):
+            dir = director.SingletonDirector()
+            dir.change_scene(SceneGame(self.nickname, self.password))
+            dir.loop()
         else:
             # 3°) Ahora comprobamos que si el fondo se mueve saliendose de la pantalla entonces que se empieze a mover el player
             if self.fondo.rect.left > 0 \

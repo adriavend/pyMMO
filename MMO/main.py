@@ -6,7 +6,7 @@ import pygame
 import director
 
 def main():
-    dir = director.Director()
+    dir = director.SingletonDirector()
     dir.loop()
 
 if __name__ == '__main__':
