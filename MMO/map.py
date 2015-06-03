@@ -7,8 +7,8 @@ import mounstro
 
 class Map():
 
-    def __init__(self, mapa):
-        self.mapa = mapa#funciones.leer_mapa(file)
+    def __init__(self, mapa, number):
+        self.mapa = mapa
         self.fil = len(self.mapa)
         self.col = len(self.mapa[0])
 
@@ -18,6 +18,7 @@ class Map():
 
         self.tab = config.TAB_GAME
 
+        self.n = number
         self.builder_map()
         
     def builder_map(self):
@@ -27,7 +28,7 @@ class Map():
                 y = f*self.tab
                 char = self.mapa[f][c]
                 if char == 'B':
-                    self.list_brick.append(brick.Brick(x, y))
+                    self.list_brick.append(brick.Brick(x, y, self.n))
                 elif char == 'P':
                     self.port = port.Port(x, y)
                 elif char == 'M':

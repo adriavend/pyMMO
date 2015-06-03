@@ -30,8 +30,8 @@ class SceneMenu(scene.Scene):
         self.password_text_rect = None
         self.password_border_rect = None
 
-        self.nickname = "adrian"
-        self.password = "adrian"
+        self.nickname = "a"
+        self.password = "a"
 
         self.current_string = self.nickname
 

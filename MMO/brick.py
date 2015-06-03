@@ -3,9 +3,10 @@ import config
 
 class Brick(pygame.sprite.Sprite):
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, n):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(config.PATH_SPRITES+"brick.gif").convert_alpha()
+        path = "%sbrick_%s.gif" % (config.PATH_SPRITES, n)
+        self.image = pygame.image.load(path).convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.left, self.rect.top = (x, y)
 

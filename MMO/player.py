@@ -35,8 +35,6 @@ class Player(pygame.sprite.Sprite):
 
         self.font_object = pygame.font.Font(None, 16)
 
-        self.str_channel = ""
-
     def is_collision_brick(self, wall):
         for brick in wall:
             if self.rect.colliderect(brick.rect):

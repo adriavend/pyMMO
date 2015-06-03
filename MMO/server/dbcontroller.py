@@ -35,13 +35,13 @@ class DbController:
 
     def retriev(self, nickname, password):
         cur = self.get_cursor()
-        cur.execute("SELECT * FROM Player WHERE Nickname = ? AND Password = ?", (nickname, password))
+        cur.execute("SELECT Id, Map FROM Player WHERE Nickname = ? AND Password = ?", (nickname, password))
         row = cur.fetchone() #Devuelve una sola fila.
 
         if row == None:
             return 0
 
-        return int(row[0])
+        return (int(row[0]), int(row[1]))
 
 
 # db = DbController()

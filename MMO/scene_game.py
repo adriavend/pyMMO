@@ -78,9 +78,12 @@ class SceneGame(scene.Scene, ConnectionListener):
             connection.Close()
             print self.print_sequence(), "Desconetado del Server..."
         elif self.player_1.is_collision_port(self.map.port):
-            dir = director.SingletonDirector()
-            dir.change_scene(SceneGame(self.nickname, self.password))
-            dir.loop()
+            self.player_1.rect.top = 10
+            self.player_1.rect.left = 10
+            self.others_players = []
+
+            self.map_number += 1
+            self.next_map(self.map_number, self.player_1.id)
         else:
             # 3°) Ahora comprobamos que si el fondo se mueve saliendose de la pantalla entonces que se empieze a mover el player
             if self.fondo.rect.left > 0 \
@@ -129,7 +132,7 @@ class SceneGame(scene.Scene, ConnectionListener):
             if self.vx > 0: orientation = 0
             elif self.vx < 0: orientation = 1
 
-            self.Send({"action": "updatemoving", "x": x, "y": y, "id_player": self.player_1.id, "orientation": orientation, "t": self.t})
+            self.Send({"action": "updatemoving", "map": self.map_number, "x": x, "y": y, "id_player": self.player_1.id, "orientation": orientation, "t": self.t})
             sleep(0.01)
 
     def on_event(self, events):
@@ -193,14 +196,14 @@ class SceneGame(scene.Scene, ConnectionListener):
         self.map.draw(screen)
         self.player_1.draw(screen)
 
-        if config.QUIT_FLAG == True:  # Termino el juego
-            text = self.font.render("GAME OVER", 0, config.COLOR_BLACK)
-            screen.blit(text, (100, 240))
-
         # Part for Server - Dibuja todos los players online que estan en el server.
         if not self.others_players == None:
             for p in self.others_players:
                 p.draw(screen)
+
+        if config.QUIT_FLAG == True:  # Termino el juego
+            text = self.font.render("GAME OVER", 0, config.COLOR_BLACK)
+            screen.blit(text, (100, 240))
 
     def moving(self):
         self.fondo.update(self.vx, self.vy)
@@ -209,6 +212,48 @@ class SceneGame(scene.Scene, ConnectionListener):
     ##############################################
     # PARTE SERVER #
     ##############################################
+
+    """ 1º) Al conectarse un player al Server se ejecuta este metodo automaticamente. """
+    def Network_connected(self, data):
+        print self.print_sequence(), "Player connected to the server"
+
+    """ 2º) Metodo que se ejecuta cuando se conecta el player al canal del server. """
+    def Network_startgame(self, data):
+        print self.print_sequence(), "Recibo de Pedido de Login ..."
+
+        self.Send_login(self.nickname, self.password)
+
+    """ 3º) Envio de datos de logueo. """
+    def Send_login(self, nickname, password):
+        self.Send({"action": "login", "nickname": nickname, "password": password})
+        print self.print_sequence(), "Envio de logueo...."
+
+    """ 4º) Metodo de respuesta de logueo. El server va a llamar a este metodo para indicar si el logueo fue exitoso o no. """
+    def Network_login(self, data):
+        print self.print_sequence(), "Recibo de Logueo ..."
+
+        id = data["id_player"]
+        if id == 0: #Logueo Fallado.
+            print self.print_sequence(), "Logueo Fallado...."
+            exit()
+        else:
+            self.player_1.id = id
+            print self.print_sequence(), "Logueo Exitoso..."
+
+            self.map_number = data["number_map"]
+
+            self.Send({"action": "map", "map": self.map_number})
+            print self.print_sequence(), "Pedido de Mapa..."
+
+    """ 5º) Metodo para la creacion del mapa y fondo """
+    def Network_map(self, data):
+        self.map = map.Map(data["map"], self.map_number)
+        self.fondo = fondo.Fondo(config.PATH_BACKS + data["background"])
+        print self.print_sequence(), "Recibo de Mapa..."
+
+        # Iniciamos el juego !!!!
+        self.run = True
+        print self.print_sequence(), "JUEGO INICIADO EXITOSAMENTE ...."
 
     """ Metodo que actualiza la posicion de los demas players. """
     def Network_updateplayers(self, data):
@@ -220,6 +265,7 @@ class SceneGame(scene.Scene, ConnectionListener):
         t = int(data["t"])
 
         p = self.get_player(id)
+        if p == None: return
         p.server_update(self.fondo.rect.left + x, self.fondo.rect.top + y, o, t)
 
     """ Obtiene el player pasado como parametro. """
@@ -232,45 +278,10 @@ class SceneGame(scene.Scene, ConnectionListener):
     def Network_newplayer(self, data):
         self.others_players.append(player.Player())
 
-    """ 2º) Metodo que se ejecuta cuando se conecta el player al canal del server. """
-    def Network_channel(self, data):
-        self.player_1.str_channel = data["channel"]
-        print self.print_sequence(), "Recibo de canal ..."
-
-        self.Send_login(self.nickname, self.password)
-
-    """ 3º) Envio de datos de logueo. """
-    def Send_login(self, nickname, password):
-        self.Send({"action": "login", "channel": self.player_1.str_channel, "nickname": nickname, "password": password})
-        print self.print_sequence(), "Envio de logueo...."
-
-    """
-        4º) Metodo de respuesta de logueo. El server va a llamar a este metodo para indicar si el logueo fue exitoso o no.
-    """
-    def Network_login(self, data):
-
-        print self.print_sequence(), "Recibo de Logueo ..."
-
-        id = data["id_player"]
-
-        if id == 0: #Logueo Fallado.
-            print self.print_sequence(), "Logueo Fallado...."
-            exit()
-        else:
-            self.player_1.id = id
-            print self.print_sequence(), "Logueo Exitoso..."
-
-            self.Send({"action": "map"})
-            print self.print_sequence(), "Pedido de Mapa..."
-
     """ N) Al cerrar la conexion con el Server (connection.Close()), se ejecuta este metodo. """
     def Network_disconnected(self, data):
         print self.print_sequence(), "Server disconnected"
         # exit()
-
-    """ 1º) Al conectarse un player al Server se ejecuta este metodo automaticamente. """
-    def Network_connected(self, data):
-        print self.print_sequence(), "Player connected to the server"
 
     """ Imprime y define las secuencias de ejecucion en el Server. """
     def print_sequence(self):
@@ -294,7 +305,6 @@ class SceneGame(scene.Scene, ConnectionListener):
     """ Elimina un player que se halla desconectado del server. """
     def Network_delplayer(self, data):
         id = int(data["id_player"])
-
         find = None
 
         for p in self.others_players:
@@ -306,7 +316,7 @@ class SceneGame(scene.Scene, ConnectionListener):
 
         del self.others_players[pos]
 
-        print self.print_sequence(), "Player desconectado: ", find.nickname
+        print self.print_sequence(), "Player Eliminado: ", find.nickname
 
     """ Metodo de prueba. """
     def Network_test(self, data):
@@ -317,12 +327,11 @@ class SceneGame(scene.Scene, ConnectionListener):
 
         print "Lista recibida", list
 
-    """ Metodo para la creacion del mapa y fondo """
-    def Network_map(self, data):
-        self.map = map.Map(data["map"])
-        self.fondo = fondo.Fondo(config.PATH_BACKS + data["background"])
-        print self.print_sequence(), "Recibo de Mapa..."
+    def Send_gameoverplayer(self, id_player, current_map):
+        self.Send({"action": "delplayer", "id_player": id_player, "map": current_map})
+        print "envio de game over ..."
 
-        # Iniciamos el juego !!!!
-        self.run = True
-        print self.print_sequence(), "JUEGO INICIADO EXITOSAMENTE ...."
+    def next_map(self, map, id_player):
+        self.Send({"action": "nextmap", "map": map, "id_player": id_player})
+        self.run = False
+
