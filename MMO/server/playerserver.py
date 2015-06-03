@@ -12,5 +12,5 @@ class PlayerServer:
         self.map = 1
         self.nickname = ""
         self.password = ""
-        self.t = 0
+        self.image = 0
         self.orientation = 0

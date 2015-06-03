@@ -4,6 +4,7 @@ import config
 import brick
 import port
 import mounstro
+import treasure
 
 class Map():
 
@@ -15,6 +16,7 @@ class Map():
         self.list_brick = []
         self.list_monsters = []
         self.port = None
+        self.treasure = None
 
         self.tab = config.TAB_GAME
 
@@ -33,6 +35,8 @@ class Map():
                     self.port = port.Port(x, y)
                 elif char == 'M':
                     self.list_monsters.append(mounstro.Mounstro(x, y))
+                elif char == 'T':
+                    self.treasure = treasure.Treasure(x, y)
 
     def draw(self, screen):
         for brick in self.list_brick:
@@ -41,7 +45,11 @@ class Map():
         for mous in self.list_monsters:
             mous.draw(screen)
 
-        self.port.draw(screen)
+        if not self.port is None:
+            self.port.draw(screen)
+
+        if not self.treasure is None:
+            self.treasure.draw(screen)
 
     def update(self, vx, vy):
         for brick in self.list_brick:
@@ -50,5 +58,9 @@ class Map():
         for mous in self.list_monsters:
             mous.update(vx, vy)
 
-        self.port.update(vx, vy)
+        if not self.port is None:
+            self.port.update(vx, vy)
+
+        if not self.treasure is None:
+            self.treasure.update(vx, vy)
 

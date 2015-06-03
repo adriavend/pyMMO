@@ -32,8 +32,8 @@ class MMOServer(PodSixNet.Server.Server):
         print "Pedido de Login..."
 
     """ Actualiza posicion del player pasado como parametro. """
-    def updatemoving(self, map, id, pos_x, pos_y, o, t):
-        self.games[map-1].updatemoving(id, pos_x, pos_y, o, t)
+    def updatemoving(self, map, id, pos_x, pos_y, o, i):
+        self.games[map-1].updatemoving(id, pos_x, pos_y, o, i)
 
     """ Metodo de procesamiento de login del player. """
     def login(self, channel, nickname, password):

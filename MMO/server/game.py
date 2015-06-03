@@ -40,7 +40,7 @@ class Game:
         Cuando el cliente se mueve y envia su posicion este metodo actualiza su poscion d acuerdo al player que sea.
         Tambien se encargara de enviarle a todos los player la posicion de todos los jugadores que hallan en el mapa.
     """
-    def updatemoving(self, id, pos_x, pos_y, o, t):
+    def updatemoving(self, id, pos_x, pos_y, o, i):
 
         find_player = None
 
@@ -52,11 +52,11 @@ class Game:
         find_player.pos_x = pos_x
         find_player.pos_y = pos_y
         find_player.orientation = o
-        find_player.t = t
+        find_player.image = i
 
         for p2 in self.players:
             if (p2 != find_player):
-                find_player.channel.Send({"action": "updateplayers", "id_player": p2.id, "x": p2.pos_x, "y": p2.pos_y, "orientation": p2.orientation, "t": p2.t})
+                find_player.channel.Send({"action": "updateplayers", "id_player": p2.id, "x": p2.pos_x, "y": p2.pos_y, "orientation": p2.orientation, "t": p2.image})
 
     """ Busca y elimina una player del juego. """
 

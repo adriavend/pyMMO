@@ -20,9 +20,9 @@ class ClientChannel(PodSixNet.Channel.Channel):
         x = int(data["x"])
         y = int(data["y"])
         o = int(data["orientation"])
-        t = int(data["t"])
+        i = int(data["image"])
         #self._server = MMOServer !!!!
-        self._server.updatemoving(map, id, x, y, o, t)
+        self._server.updatemoving(map, id, x, y, o, i)
 
     """ Metodo que recibe los datos de login del player para iniciarse y los envia al servidor. """
     def Network_login(self, data):

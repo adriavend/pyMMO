@@ -12,12 +12,22 @@ class Player(pygame.sprite.Sprite):
         self.image_player_go_right = pygame.image.load(config.PATH_SPRITES+"player_go_right.png").convert_alpha()
         self.image_player_stop_left = pygame.image.load(config.PATH_SPRITES+"player_stop_left.png").convert_alpha()
         self.image_player_go_left = pygame.image.load(config.PATH_SPRITES+"player_go_left.png").convert_alpha()
+
+        self.image_player_stop_top = pygame.image.load(config.PATH_SPRITES+"player_stop_top.png").convert_alpha()
+        self.image_player_go_top = pygame.image.load(config.PATH_SPRITES+"player_go_top.png").convert_alpha()
+        self.image_player_stop_bottom = pygame.image.load(config.PATH_SPRITES+"player_stop_bottom.png").convert_alpha()
+        self.image_player_go_bottom = pygame.image.load(config.PATH_SPRITES+"player_go_bottom.png").convert_alpha()
         self.image_player_explosion = pygame.image.load(config.PATH_SPRITES+"explosion.png").convert_alpha()
 
-        self.imagenes = [[self.image_player_stop_right, self.image_player_go_right],[self.image_player_stop_left, self.image_player_go_left]]
+        self.images = [
+            [self.image_player_stop_right, self.image_player_go_right],
+            [self.image_player_stop_left, self.image_player_go_left],
+            [self.image_player_stop_bottom, self.image_player_go_bottom],
+            [self.image_player_stop_top, self.image_player_go_top]
+        ]
 
         self.image_current = 0
-        self.image = self.imagenes[self.image_current][0]
+        self.image = self.images[self.image_current][0]
 
         self.rect = self.image.get_rect()
         self.rect.top, self.rect.left = (config.SCREEN_HEIGHT / 2, config.SCREEN_WIDTH / 2)
@@ -58,15 +68,20 @@ class Player(pygame.sprite.Sprite):
         else:
             self.is_moving = True
 
-        if vx > 0:
+        if vx > 0 and vy == 0:
             self.orientation = 0
-        elif vx < 0:
+        elif vx < 0 and vy == 0:
             self.orientation = 1
+        elif vx == 0 and vy > 0:
+            self.orientation = 2
+        elif vx == 0 and vy < 0:
+            self.orientation = 3
 
         if t == 1 and self.is_moving:
             self.next_image()
 
-        self.image = self.imagenes[self.orientation][self.image_current]
+        self.image = self.images[self.orientation][self.image_current]
+
         self.rect.move_ip(vx, vy)
 
         if not self.rect_nickname == None:
@@ -81,7 +96,7 @@ class Player(pygame.sprite.Sprite):
     def next_image(self):
         self.image_current += 1
 
-        if self.image_current > len(self.imagenes) -1:
+        if self.image_current > len(self.images[self.orientation]) -1:
             self.image_current = 0
 
     def change_image_explosion(self):
@@ -93,7 +108,7 @@ class Player(pygame.sprite.Sprite):
         Metodo que actuliza la posicion segun le indique el server. Este metodo es para actulizar los players que estan
          en el mapa.
     """
-    def server_update(self, x, y, o, t):
-        self.image = self.imagenes[o][t]
+    def server_update(self, x, y, o, c):
+        self.image = self.images[o][c]
         self.rect.left = x
         self.rect.top = y

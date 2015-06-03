@@ -7,7 +7,6 @@ import player
 import fondo
 import map
 import sys
-import director
 
 from PodSixNet.Connection import ConnectionListener, connection
 from time import sleep
@@ -127,12 +126,7 @@ class SceneGame(scene.Scene, ConnectionListener):
             x = abs(self.fondo.rect.left) + self.player_1.rect.left
             y = abs(self.fondo.rect.top) + self.player_1.rect.top
 
-            # Obtenemos la orientacion ... osea.. hacia donde mira... a la izquierda .. o derecha.
-            orientation = 0
-            if self.vx > 0: orientation = 0
-            elif self.vx < 0: orientation = 1
-
-            self.Send({"action": "updatemoving", "map": self.map_number, "x": x, "y": y, "id_player": self.player_1.id, "orientation": orientation, "t": self.t})
+            self.Send({"action": "updatemoving", "map": self.map_number, "x": x, "y": y, "id_player": self.player_1.id, "orientation": self.player_1.orientation, "image": self.player_1.image_current})
             sleep(0.01)
 
     def on_event(self, events):
