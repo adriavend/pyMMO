@@ -4,20 +4,23 @@ from time import sleep
 
 import PodSixNet.Channel
 import PodSixNet.Server
-import dbcontroller
+
+from dataaccess.dbcontroller import DbController
 import clientchannel
 import game
 import playerserver
+import config
 
 class MMOServer(PodSixNet.Server.Server):
 
     def __init__(self, *args, **kwargs):
         PodSixNet.Server.Server.__init__(self, *args, **kwargs)
-        self.db_conn = dbcontroller.DbController()
+        self.db_conn = DbController()
         self.games = []
 
         for i in range(2):
-            self.games.append(game.Game(i+1))
+            g = game.Game(i+1)
+            self.games.append(g)
 
     channelClass = clientchannel.ClientChannel
 
@@ -56,9 +59,12 @@ class MMOServer(PodSixNet.Server.Server):
 
             print "Player creado exitosamente en server. Cant. Players en Linea: ", len(self.games[number_map].players)
 
-            #Al nuevo player le enviamos los datos de los players que ya estan en el mapa.
+            #Al nuevo player le enviamos los datos de los players que ya estan en el mapa como asi tambien los moustros.
             for p in self.games[number_map].players:
                 channel.Send({"action": "newplayer", "id_player": p.id, "x": p.pos_x, "y": p.pos_y, "nickname": p.nickname})
+
+            for m in self.games[number_map].monsters:
+                channel.Send({"action": "newmonster", "id_monster": m.id, "x": m.j * config.TAB_GAME, "y": m.i * config.TAB_GAME})
 
             #A los players que estan le enviamos para que creen un nuevo player.
             for p in self.games[number_map].players:
@@ -142,7 +148,7 @@ class MMOServer(PodSixNet.Server.Server):
 
         self.del_player(current_map, player)
 
-        print "player eliminado"
+        print "Player eliminado"
 
         self.Send_delplayer(current_map, player.id)
 
@@ -178,9 +184,16 @@ class MMOServer(PodSixNet.Server.Server):
     def del_player(self, current_map, player):
         del self.games[current_map].players[self.games[current_map].players.index(player)]
 
+    """ Inicia el movimientos de los moustros. """
+    def run_monster(self):
+        for g in self.games:
+            if not len(g.players) == 0:
+                g.run()
+
 
 print "STARTING SERVER ON LOCALHOST"
 mmo_server = MMOServer()
 while True:
     mmo_server.Pump()
     sleep(0.01)
+    mmo_server.run_monster()
