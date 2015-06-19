@@ -189,7 +189,7 @@ class MMOServer(PodSixNet.Server.Server):
         for g in self.games:
             if not len(g.players) == 0:
                 g.run()
-
+                
     def Send_monsters(self, channel):
         for m in self.games[0].monsters:
                 channel.Send({"action": "newmonster", "id_monster": m.id, "x": m.j * config.TAB_GAME, "y": m.i * config.TAB_GAME})
@@ -209,6 +209,11 @@ class MMOServer(PodSixNet.Server.Server):
         :return: None
         """
         self.games[map - 1].send_flecha(id_player, orientation, x, y)
+                
+    def Treasure_found(self,id_winner_player,nickname):
+        for g in self.games:
+            for player in g.players:
+                player.channel.Send({"action": "treasurefound", "id_winner": id_winner_player, "nickname_winner":nickname})
 
 
 print "STARTING SERVER ON LOCALHOST"

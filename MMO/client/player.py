@@ -3,23 +3,24 @@
 
 import pygame
 
-from client import config
+import config
 
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, id, nickname):
         pygame.sprite.Sprite.__init__(self)
 
-        self.image_player_stop_right = pygame.image.load(config.PATH_SPRITES+"player_stop_right.png").convert_alpha()
-        self.image_player_go_right = pygame.image.load(config.PATH_SPRITES+"player_go_right.png").convert_alpha()
-        self.image_player_stop_left = pygame.image.load(config.PATH_SPRITES+"player_stop_left.png").convert_alpha()
-        self.image_player_go_left = pygame.image.load(config.PATH_SPRITES+"player_go_left.png").convert_alpha()
+        self.image_player_stop_right = pygame.image.load(config.PATH_SPRITES + "player_stop_right.png").convert_alpha()
+        self.image_player_go_right = pygame.image.load(config.PATH_SPRITES + "player_go_right.png").convert_alpha()
+        self.image_player_stop_left = pygame.image.load(config.PATH_SPRITES + "player_stop_left.png").convert_alpha()
+        self.image_player_go_left = pygame.image.load(config.PATH_SPRITES + "player_go_left.png").convert_alpha()
 
-        self.image_player_stop_top = pygame.image.load(config.PATH_SPRITES+"player_stop_top.png").convert_alpha()
-        self.image_player_go_top = pygame.image.load(config.PATH_SPRITES+"player_go_top.png").convert_alpha()
-        self.image_player_stop_bottom = pygame.image.load(config.PATH_SPRITES+"player_stop_bottom.png").convert_alpha()
-        self.image_player_go_bottom = pygame.image.load(config.PATH_SPRITES+"player_go_bottom.png").convert_alpha()
-        self.image_player_explosion = pygame.image.load(config.PATH_SPRITES+"explosion.png").convert_alpha()
+        self.image_player_stop_top = pygame.image.load(config.PATH_SPRITES + "player_stop_top.png").convert_alpha()
+        self.image_player_go_top = pygame.image.load(config.PATH_SPRITES + "player_go_top.png").convert_alpha()
+        self.image_player_stop_bottom = pygame.image.load(
+            config.PATH_SPRITES + "player_stop_bottom.png").convert_alpha()
+        self.image_player_go_bottom = pygame.image.load(config.PATH_SPRITES + "player_go_bottom.png").convert_alpha()
+        self.image_player_explosion = pygame.image.load(config.PATH_SPRITES + "explosion.png").convert_alpha()
 
         self.images = [
             [self.image_player_stop_right, self.image_player_go_right],
@@ -45,7 +46,7 @@ class Player(pygame.sprite.Sprite):
 
         self.rect_nickname = None
         self.rect_border_nickname = None
-
+        
         self.font_object = pygame.font.Font(None, 16)
 
         self.heart = 5
@@ -71,6 +72,14 @@ class Player(pygame.sprite.Sprite):
         for p in players:
             if self.rect.colliderect(p.rect):
                 return True
+        return False
+
+    def is_collision_treasure(self, treasure):
+        if None == treasure:
+            return False
+
+        if self.rect.colliderect(treasure.rect):
+            return True
         return False
 
     def update(self, vx, vy, t):
@@ -126,7 +135,7 @@ class Player(pygame.sprite.Sprite):
     def next_image(self):
         self.image_current += 1
 
-        if self.image_current > len(self.images[self.orientation]) -1:
+        if self.image_current > len(self.images[self.orientation]) - 1:
             self.image_current = 0
 
     def change_image_explosion(self):

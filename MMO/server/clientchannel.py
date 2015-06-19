@@ -49,8 +49,13 @@ class ClientChannel(PodSixNet.Channel.Channel):
     def Network_delplayer(self, data):
         id_player = int(data["id_player"])
         current_map = int(data["map"])
-
         self._server.Del_player(id_player, current_map)
+
+    def Network_treasurefound(self, data):
+        id_player = int(data["id_player"])
+        nickname = str(data["nickname_player"])
+        #current_map = int(data["map"])
+        self._server.Treasure_found(id_player,nickname)
 
     def Network_monsters(self, data):
         """ Pedido de moustros.

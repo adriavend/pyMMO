@@ -6,12 +6,11 @@ from time import sleep
 import pygame
 from PodSixNet.Connection import ConnectionListener, connection
 
-from client import fondo, config, player, scene
+import fondo, config, mounstro, player, scene,scene_gameover,scene_youwin,director
 import map
 
 import flecha
 import heart
-
 
 class SceneGame(scene.Scene, ConnectionListener):
     def __init__(self, nickname, password):
@@ -25,7 +24,7 @@ class SceneGame(scene.Scene, ConnectionListener):
 
         self.fondo = fondo.Fondo(config.PATH_BACKS + "none.gif")
         self.map_number = 1
-        self.map = None
+        self.map = None #map.Map(config.PATH_MAPS + "map_1.txt")
         self.player_1 = player.Player(0, nickname)
         self.others_players = []
         self.t = 0
@@ -34,7 +33,7 @@ class SceneGame(scene.Scene, ConnectionListener):
 
         # PARTE SERVER
         # 1º) Nos conectamos.
-        self.Connect()  # Sobre carga host and port.
+        self.Connect() #Sobre carga host and port.
 
         self.nickname = nickname
         self.password = password
@@ -212,8 +211,6 @@ class SceneGame(scene.Scene, ConnectionListener):
                         self.vy = -speed_game
                     else:
                         self.vy = 0
-                if event.key == pygame.K_a:
-                    continue
 
         self.t += 1
 
@@ -226,13 +223,31 @@ class SceneGame(scene.Scene, ConnectionListener):
         self.map.draw(screen)
         self.player_1.draw(screen)
 
+        # Part for Server - Dibuja todos los players online que estan en el server.
         if not self.others_players is None:
             for p in self.others_players:
                 p.draw(screen)
 
-        if config.QUIT_FLAG is True:  # Termino el juego
-            text = self.font.render("GAME OVER", 0, config.COLOR_BLACK)
-            screen.blit(text, (100, 240))
+        # Dibuja todos los moustros que estan en el server.
+        if not self.monsters == None:
+            for m in self.monsters:
+                m.draw(screen)
+
+        if config.QUIT_FLAG == True:  # Termino el juego
+            if(self.id_winner == self.player_1.id):
+                scene_next = scene_youwin.SceneYouWin()
+                dir = director.SingletonDirector()
+                dir.change_scene(scene_next)
+                dir.loop
+                config.QUIT_FLAG = False
+            else:
+                scene_next = scene_gameover.SceneGameover(self.id_winner,self.nickname_winner)
+                dir = director.SingletonDirector()
+                dir.change_scene(scene_next)
+                dir.loop
+                config.QUIT_FLAG = False
+            # text = self.font.render("GAME OVER", 0, config.COLOR_BLACK)
+            # screen.blit(text, (100, 240))
 
         for f in self.list_flechas_player:
             f.draw(screen)
@@ -395,6 +410,18 @@ class SceneGame(scene.Scene, ConnectionListener):
     def next_map(self, map, id_player):
         self.Send({"action": "nextmap", "map": map, "id_player": id_player})
         self.run = False
+
+    def Send_treasurefound(self,player):
+        self.Send({"action": "treasurefound","id_player": player.id,"nickname_player": player.nickname})
+        print "ENVIO TESORO ENCONTRADO"
+        sleep(0.2)
+
+    def Network_treasurefound(self, data):
+        self.id_winner = data["id_winner"]
+        self.nickname_winner = data["nickname_winner"]
+        print "Jugador ganador numero: " + str(self.id_winner)
+        config.QUIT_FLAG = True
+
 
     def Network_updatemonters(self, data):
         id = int(data["id_monster"])
