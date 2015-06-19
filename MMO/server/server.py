@@ -210,7 +210,7 @@ class MMOServer(PodSixNet.Server.Server):
         """
         self.games[map - 1].send_flecha(id_player, orientation, x, y)
                 
-    def Treasure_found(self,id_winner_player,nickname):
+    def Treasure_found(self, id_winner_player, nickname):
         for g in self.games:
             for player in g.players:
                 player.channel.Send({"action": "treasurefound", "id_winner": id_winner_player, "nickname_winner":nickname})

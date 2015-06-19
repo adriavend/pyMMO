@@ -1,6 +1,7 @@
 __author__ = 'Bachi'
 
-import scene,pygame,fondo,config
+import scene, pygame, fondo, config
+import sys
 
 class SceneYouWin(scene.Scene):
 
@@ -16,7 +17,9 @@ class SceneYouWin(scene.Scene):
         pass
 
     def on_event(self, events):
-        pass
+        for event in events:
+            if event.type == pygame.QUIT:
+                sys.exit()
 
     def on_draw(self, screen):
         self.fondo.draw(screen)

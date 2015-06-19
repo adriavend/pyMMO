@@ -18,8 +18,3 @@ class Treasure(pygame.sprite.Sprite):
 
     def update(self, vx, vy):
         self.rect.move_ip(-vx, -vy)
-
-    def is_collision(self, player):
-        if self.rect.colliderect(player.rect):
-            return True
-        return False

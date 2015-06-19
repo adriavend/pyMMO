@@ -4,7 +4,7 @@
 # Módulos
 import pygame
 
-from client import director
+import director
 
 
 def main():

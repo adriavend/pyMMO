@@ -2,7 +2,7 @@ __author__ = 'Adrian'
 
 import pygame
 
-from client import config
+import config
 
 
 # class Mounstro(pygame.sprite.Sprite,threading.Thread):

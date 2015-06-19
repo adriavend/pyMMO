@@ -64,6 +64,9 @@ class Player(pygame.sprite.Sprite):
         return False
 
     def is_collision_port(self, port):
+        if None == port:
+            return False
+
         if self.rect.colliderect(port.rect):
             return True
         return False

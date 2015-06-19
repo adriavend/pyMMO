@@ -84,7 +84,7 @@ class Game(threading.Thread):
                     self.update_monster_map(m)
                 else:
                     self.monster_restart_move(m)
-        self.time = self.clock.tick(20)
+        self.time = self.clock.tick(10)
         # time.sleep(0.2)
 
     """

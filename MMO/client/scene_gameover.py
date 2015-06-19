@@ -1,6 +1,7 @@
 __author__ = 'Bachi'
 
-import scene,pygame,fondo,config
+import scene, pygame, fondo, config
+import sys
 
 class SceneGameover(scene.Scene):
 
@@ -17,7 +18,9 @@ class SceneGameover(scene.Scene):
         pass
 
     def on_event(self, events):
-        pass
+        for event in events:
+            if event.type == pygame.QUIT:
+                sys.exit()
 
     def on_draw(self, screen):
         self.fondo.draw(screen)
@@ -27,6 +30,6 @@ class SceneGameover(scene.Scene):
         screen.blit(fontobjectName.render("Jugador ganador: "+self.nickname_winner, 1, config.COLOR_WHITE),
                         ((5), 10))
 
-        screen.blit(fontobjectNum.render("Numero: "+str(self.id_winner), 1, config.COLOR_WHITE),
-                        ((5), 55))
+        # screen.blit(fontobjectNum.render("Numero: "+str(self.id_winner), 1, config.COLOR_WHITE),
+        #                 ((5), 55))
         pass

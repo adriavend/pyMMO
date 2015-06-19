@@ -1,6 +1,6 @@
 __author__ = 'Adrian'
 
-from client import brick, config, treasure, port
+import brick, config, treasure, port
 
 import mounstro
 import flecha
