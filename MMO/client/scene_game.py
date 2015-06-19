@@ -6,7 +6,7 @@ from time import sleep
 import pygame
 from PodSixNet.Connection import ConnectionListener, connection
 
-from client import fondo, config, mounstro, player, scene
+import fondo, config, mounstro, player, scene,scene_gameover,scene_youwin,director
 import map
 
 
@@ -40,6 +40,9 @@ class SceneGame(scene.Scene, ConnectionListener):
         self.execute_sequence = 0
         self.run = False
 
+        self.id_winner = 0
+        self.nickname_winner = ""
+
         # FIN PARTE SERVER>
 
     def on_update(self):
@@ -65,11 +68,13 @@ class SceneGame(scene.Scene, ConnectionListener):
             self.fondo.update(-self.vx, -self.vy)
             self.map.update(-self.vx, -self.vy)
             # self.moving_monster(-self.vx, -self.vy)
+
         elif self.player_1.is_collision_players(self.others_players):
             self.player_1.update(-self.vx, -self.vy, self.t)
             self.fondo.update(-self.vx, -self.vy)
             self.map.update(-self.vx, -self.vy)
             # self.moving_monster(-self.vx, -self.vy)
+
         elif self.player_1.is_collision_monsters(self.monsters):
             self.fondo.update(-self.vx, -self.vy)
             self.map.update(-self.vx, -self.vy)
@@ -82,6 +87,7 @@ class SceneGame(scene.Scene, ConnectionListener):
             """
             connection.Close()
             print self.print_sequence(), "Desconetado del Server..."
+
         elif self.player_1.is_collision_port(self.map.port):
             self.player_1.rect.top = 10
             self.player_1.rect.left = 10
@@ -89,6 +95,11 @@ class SceneGame(scene.Scene, ConnectionListener):
 
             self.map_number += 1
             self.next_map(self.map_number, self.player_1.id)
+
+        elif self.player_1.is_collision_treasure(self.map.treasure):
+            self.Send_treasurefound(self.player_1)
+
+
         else:
             # 3°) Ahora comprobamos que si el fondo se mueve saliendose de la pantalla entonces que se empieze a mover el player
             if self.fondo.rect.left > 0 \
@@ -208,8 +219,20 @@ class SceneGame(scene.Scene, ConnectionListener):
                 m.draw(screen)
 
         if config.QUIT_FLAG == True:  # Termino el juego
-            text = self.font.render("GAME OVER", 0, config.COLOR_BLACK)
-            screen.blit(text, (100, 240))
+            if(self.id_winner == self.player_1.id):
+                scene_next = scene_youwin.SceneYouWin()
+                dir = director.SingletonDirector()
+                dir.change_scene(scene_next)
+                dir.loop
+                config.QUIT_FLAG = False
+            else:
+                scene_next = scene_gameover.SceneGameover(self.id_winner,self.nickname_winner)
+                dir = director.SingletonDirector()
+                dir.change_scene(scene_next)
+                dir.loop
+                config.QUIT_FLAG = False
+            # text = self.font.render("GAME OVER", 0, config.COLOR_BLACK)
+            # screen.blit(text, (100, 240))
 
     def moving(self):
         self.fondo.update(self.vx, self.vy)
@@ -359,6 +382,18 @@ class SceneGame(scene.Scene, ConnectionListener):
     def next_map(self, map, id_player):
         self.Send({"action": "nextmap", "map": map, "id_player": id_player})
         self.run = False
+
+    def Send_treasurefound(self,player):
+        self.Send({"action": "treasurefound","id_player": player.id,"nickname_player": player.nickname})
+        print "ENVIO TESORO ENCONTRADO"
+        sleep(0.2)
+
+    def Network_treasurefound(self, data):
+        self.id_winner = data["id_winner"]
+        self.nickname_winner = data["nickname_winner"]
+        print "Jugador ganador numero: " + str(self.id_winner)
+        config.QUIT_FLAG = True
+
 
     def get_monster(self, id):
         for m in self.monsters:

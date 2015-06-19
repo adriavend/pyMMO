@@ -32,7 +32,7 @@ class Game(threading.Thread):
         row = len(self.map)
         col = len(self.map[0])
 
-        amount = random.randrange(2, 10) #Cantidad de moustro a generar.
+        amount = 0 ##random.randrange(2, 10) #Cantidad de moustro a generar.
         count = 0
 
         while count != amount:

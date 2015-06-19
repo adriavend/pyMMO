@@ -3,23 +3,24 @@
 
 import pygame
 
-from client import config
+import config
 
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, id, nickname):
         pygame.sprite.Sprite.__init__(self)
 
-        self.image_player_stop_right = pygame.image.load(config.PATH_SPRITES+"player_stop_right.png").convert_alpha()
-        self.image_player_go_right = pygame.image.load(config.PATH_SPRITES+"player_go_right.png").convert_alpha()
-        self.image_player_stop_left = pygame.image.load(config.PATH_SPRITES+"player_stop_left.png").convert_alpha()
-        self.image_player_go_left = pygame.image.load(config.PATH_SPRITES+"player_go_left.png").convert_alpha()
+        self.image_player_stop_right = pygame.image.load(config.PATH_SPRITES + "player_stop_right.png").convert_alpha()
+        self.image_player_go_right = pygame.image.load(config.PATH_SPRITES + "player_go_right.png").convert_alpha()
+        self.image_player_stop_left = pygame.image.load(config.PATH_SPRITES + "player_stop_left.png").convert_alpha()
+        self.image_player_go_left = pygame.image.load(config.PATH_SPRITES + "player_go_left.png").convert_alpha()
 
-        self.image_player_stop_top = pygame.image.load(config.PATH_SPRITES+"player_stop_top.png").convert_alpha()
-        self.image_player_go_top = pygame.image.load(config.PATH_SPRITES+"player_go_top.png").convert_alpha()
-        self.image_player_stop_bottom = pygame.image.load(config.PATH_SPRITES+"player_stop_bottom.png").convert_alpha()
-        self.image_player_go_bottom = pygame.image.load(config.PATH_SPRITES+"player_go_bottom.png").convert_alpha()
-        self.image_player_explosion = pygame.image.load(config.PATH_SPRITES+"explosion.png").convert_alpha()
+        self.image_player_stop_top = pygame.image.load(config.PATH_SPRITES + "player_stop_top.png").convert_alpha()
+        self.image_player_go_top = pygame.image.load(config.PATH_SPRITES + "player_go_top.png").convert_alpha()
+        self.image_player_stop_bottom = pygame.image.load(
+            config.PATH_SPRITES + "player_stop_bottom.png").convert_alpha()
+        self.image_player_go_bottom = pygame.image.load(config.PATH_SPRITES + "player_go_bottom.png").convert_alpha()
+        self.image_player_explosion = pygame.image.load(config.PATH_SPRITES + "explosion.png").convert_alpha()
 
         self.images = [
             [self.image_player_stop_right, self.image_player_go_right],
@@ -56,7 +57,7 @@ class Player(pygame.sprite.Sprite):
     def is_collision_monsters(self, monsters):
         for monster in monsters:
             if self.rect.colliderect(monster.rect):
-                    return True
+                return True
         return False
 
     def is_collision_port(self, port):
@@ -68,6 +69,14 @@ class Player(pygame.sprite.Sprite):
         for p in players:
             if self.rect.colliderect(p.rect):
                 return True
+        return False
+
+    def is_collision_treasure(self, treasure):
+        if None == treasure:
+            return False
+
+        if self.rect.colliderect(treasure.rect):
+            return True
         return False
 
     def update(self, vx, vy, t):
@@ -97,14 +106,15 @@ class Player(pygame.sprite.Sprite):
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
-        self.rect_nickname = pygame.draw.rect(screen, config.COLOR_NARROW, (self.rect.left - 4, self.rect.top - 10, 40, 10), 0)
+        self.rect_nickname = pygame.draw.rect(screen, config.COLOR_NARROW,
+                                              (self.rect.left - 4, self.rect.top - 10, 40, 10), 0)
         screen.blit(self.font_object.render(self.nickname, 1, config.COLOR_WHITE),
-                        (self.rect.left - 4, self.rect.top - 10))
+                    (self.rect.left - 4, self.rect.top - 10))
 
     def next_image(self):
         self.image_current += 1
 
-        if self.image_current > len(self.images[self.orientation]) -1:
+        if self.image_current > len(self.images[self.orientation]) - 1:
             self.image_current = 0
 
     def change_image_explosion(self):
@@ -116,6 +126,7 @@ class Player(pygame.sprite.Sprite):
         Metodo que actuliza la posicion segun le indique el server. Este metodo es para actulizar los players que estan
          en el mapa.
     """
+
     def server_update(self, x, y, o, c):
         self.image = self.images[o][c]
         self.rect.left = x

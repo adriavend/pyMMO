@@ -1,6 +1,6 @@
 import pygame
 
-from client import config
+import config
 
 
 class Brick(pygame.sprite.Sprite):

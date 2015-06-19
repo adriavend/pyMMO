@@ -4,7 +4,7 @@
 # Módulos
 import pygame
 
-from client import config, scene_menu
+import config, scene_menu
 
 
 class SingletonDirector(object):

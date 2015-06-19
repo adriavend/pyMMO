@@ -190,6 +190,11 @@ class MMOServer(PodSixNet.Server.Server):
             if not len(g.players) == 0:
                 g.run()
 
+    def Treasure_found(self,id_winner_player,nickname):
+        for g in self.games:
+            for player in g.players:
+                player.channel.Send({"action": "treasurefound", "id_winner": id_winner_player, "nickname_winner":nickname})
+
 
 print "STARTING SERVER ON LOCALHOST"
 mmo_server = MMOServer()

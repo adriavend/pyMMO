@@ -2,7 +2,7 @@ __author__ = 'Adrian'
 
 import pygame
 
-from client import config
+import config
 
 
 class Port(pygame.sprite.Sprite):
