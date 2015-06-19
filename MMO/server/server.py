@@ -63,8 +63,8 @@ class MMOServer(PodSixNet.Server.Server):
             for p in self.games[number_map].players:
                 channel.Send({"action": "newplayer", "id_player": p.id, "x": p.pos_x, "y": p.pos_y, "nickname": p.nickname})
 
-            for m in self.games[number_map].monsters:
-                channel.Send({"action": "newmonster", "id_monster": m.id, "x": m.j * config.TAB_GAME, "y": m.i * config.TAB_GAME})
+            # for m in self.games[number_map].monsters:
+            #     channel.Send({"action": "newmonster", "id_monster": m.id, "x": m.j * config.TAB_GAME, "y": m.i * config.TAB_GAME})
 
             #A los players que estan le enviamos para que creen un nuevo player.
             for p in self.games[number_map].players:
@@ -189,6 +189,26 @@ class MMOServer(PodSixNet.Server.Server):
         for g in self.games:
             if not len(g.players) == 0:
                 g.run()
+
+    def Send_monsters(self, channel):
+        for m in self.games[0].monsters:
+                channel.Send({"action": "newmonster", "id_monster": m.id, "x": m.j * config.TAB_GAME, "y": m.i * config.TAB_GAME})
+                print "Envio de moustros..."
+
+        channel.Send({"action": "initgame"})
+        print "Envio de inicio de Juego Exitosamente"
+
+    def launchflecha(self, map, id_player, orientation, x, y):
+        """
+        Metodo que recibe los datos de la flecha disparada para enviarle a todos los players de ese juego.
+        :param map: Numero del mapa en donde se disparo la flecha.
+        :param id_player: Id del player que envio la flecha. (para que no se lo envien a el la flecha sino al resto).
+        :param orientation: Orientacion de la flecha.
+        :param x: poscion x de la flecha.
+        :param y: posicion y de la flecha.
+        :return: None
+        """
+        self.games[map - 1].send_flecha(id_player, orientation, x, y)
 
 
 print "STARTING SERVER ON LOCALHOST"

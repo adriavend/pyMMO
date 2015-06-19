@@ -51,3 +51,22 @@ class ClientChannel(PodSixNet.Channel.Channel):
         current_map = int(data["map"])
 
         self._server.Del_player(id_player, current_map)
+
+    def Network_monsters(self, data):
+        """ Pedido de moustros.
+        :param data: Datos para el envio de moustro
+        :return: None
+        """
+        self._server.Send_monsters(self)
+
+    def Network_launchflecha(self, data):
+        """ Metodo que recibe los datos de la flecha que dispara para enviarle a todos los players del juego.
+        :param data: Diccionario con los datos de la flecha.
+        :return: None
+        """
+        map = int(data["map"])
+        id_player = int(data["id_player"])
+        orientation = int(data["orientation"])
+        x = int(data["x"])
+        y = int(data["y"])
+        self._server.launchflecha(map, id_player, orientation, x , y)

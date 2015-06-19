@@ -6,7 +6,8 @@ class Scene:
  
     Una escena es una parte visible del juego, como una pantalla
     de presentación o menú de opciones. Tiene que crear un objeto
-    derivado de esta clase para crear una escena utilizable."""
+    derivado de esta clase para crear una escena utilizable.
+    """
 
     def __init__(self):
         pass

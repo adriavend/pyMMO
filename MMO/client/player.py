@@ -44,8 +44,11 @@ class Player(pygame.sprite.Sprite):
         self.nickname = nickname
 
         self.rect_nickname = None
+        self.rect_border_nickname = None
 
         self.font_object = pygame.font.Font(None, 16)
+
+        self.heart = 5
 
     def is_collision_brick(self, wall):
         for brick in wall:
@@ -56,7 +59,7 @@ class Player(pygame.sprite.Sprite):
     def is_collision_monsters(self, monsters):
         for monster in monsters:
             if self.rect.colliderect(monster.rect):
-                    return True
+                return True
         return False
 
     def is_collision_port(self, port):
@@ -95,10 +98,29 @@ class Player(pygame.sprite.Sprite):
         if not self.rect_nickname == None:
             self.rect_nickname.move_ip(vx, vy)
 
+        if not self.rect_border_nickname == None:
+            self.rect_border_nickname.move_ip(vx, vy)
+
     def draw(self, screen):
         screen.blit(self.image, self.rect)
-        self.rect_nickname = pygame.draw.rect(screen, config.COLOR_NARROW, (self.rect.left - 4, self.rect.top - 10, 40, 10), 0)
-        screen.blit(self.font_object.render(self.nickname, 1, config.COLOR_WHITE),
+
+        if self.heart == 5 or self.heart == 4:
+            color_heart = config.COLOR_GREEN
+        elif self.heart == 3 or self.heart == 2:
+            color_heart = config.COLOR_YELLOW
+        elif self.heart == 6: #Se trata de otro player.
+            color_heart = config.COLOR_LIGHTBLUE
+        else:
+            color_heart = config.COLOR_RED
+
+        if self.heart == 6 or self.heart == 5:
+            porc = 1.0
+        else:
+            porc = float(self.heart) / 5
+
+        self.rect_nickname = pygame.draw.rect(screen, color_heart, (self.rect.left - 4, self.rect.top - 10, 40*porc, 10), 0)
+        self.rect_border_nickname = pygame.draw.rect(screen, config.COLOR_BLACK, (self.rect.left - 4, self.rect.top - 10, 40, 10), 1)
+        screen.blit(self.font_object.render(self.nickname, 1, config.COLOR_BLACK),
                         (self.rect.left - 4, self.rect.top - 10))
 
     def next_image(self):
@@ -120,3 +142,8 @@ class Player(pygame.sprite.Sprite):
         self.image = self.images[o][c]
         self.rect.left = x
         self.rect.top = y
+
+    def collision_flecha(self, flechas):
+        for f in flechas:
+            if self.rect.colliderect(f.rect):
+                self.heart -= 1

@@ -166,3 +166,16 @@ class Game(threading.Thread):
             m.i -= 1
 
         print "Moustro", m.id, "se ha movido exitosamente. Orientacion", m.orientation, "Coordenadas: ", (m.i, m.j)
+
+    def send_flecha(self, id_player, orientation, x, y):
+        """
+        Envia a todos los players del mapa la posicion de la fecha.
+        :param id_player: Id del player que envio la flecha.
+        :param orientation: orientacion de la flecha.
+        :param x: posicion x de la flecha.
+        :param y: posicion y de la flecha.
+        :return: None
+        """
+        for p in self.players:
+            if not p.id == id_player:
+                p.channel.Send({"action": "reciveflecha", "orientation": orientation, "x": x, "y": y})

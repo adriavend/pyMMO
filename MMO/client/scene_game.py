@@ -6,14 +6,16 @@ from time import sleep
 import pygame
 from PodSixNet.Connection import ConnectionListener, connection
 
-from client import fondo, config, mounstro, player, scene
+from client import fondo, config, player, scene
 import map
+
+import flecha
+import heart
 
 
 class SceneGame(scene.Scene, ConnectionListener):
     def __init__(self, nickname, password):
         scene.Scene.__init__(self)
-
         pygame.mouse.set_visible(False)
 
         # Velocidades del Juego
@@ -23,16 +25,16 @@ class SceneGame(scene.Scene, ConnectionListener):
 
         self.fondo = fondo.Fondo(config.PATH_BACKS + "none.gif")
         self.map_number = 1
-        self.map = None #map.Map(config.PATH_MAPS + "map_1.txt")
+        self.map = None
         self.player_1 = player.Player(0, nickname)
         self.others_players = []
-        self.monsters = []
         self.t = 0
         self.font = pygame.font.Font(None, 92)
+        self.font_heart = pygame.font.Font(None, 36)
 
         # PARTE SERVER
         # 1º) Nos conectamos.
-        self.Connect() #Sobre carga host and port.
+        self.Connect()  # Sobre carga host and port.
 
         self.nickname = nickname
         self.password = password
@@ -41,45 +43,38 @@ class SceneGame(scene.Scene, ConnectionListener):
         self.run = False
 
         # FIN PARTE SERVER>
+        self.heart = heart.Heart()
+        self.list_flechas_player = []
 
     def on_update(self):
-
-        # PARTE SERVER
-
         connection.Pump()
         self.Pump()
 
-        # FIN PARTE SERVER>
-
-        if not self.run: return
+        if not self.run:
+            return
 
         """
          Logica del Juego. Manejo de Movimientos y Colisiones.
          """
         # 1°) Movemos el fondo y las paredes sin importar que halla o no colisiones. Ojo el player no se mueve
-        self.moving()
+        self.moving(self.vx, self.vy)
+
+        self.map.collide_flecha_player(self.player_1) # Las flechas de los demas player.. colisonan con migo ? Si=heart-1
+        self.collide_flechas_otherplayer() #Mis flechas colisionan con los otros player ? Si = Borro Flecha
 
         # 2°) Ahora comprobamos si realmente hay colision entre el player con algun muro.
         # En caso de existir colision -> Movemos en sentido contrario (volviendo a la posicion original que tenia antes)
         if self.player_1.is_collision_brick(self.map.list_brick):
-            self.fondo.update(-self.vx, -self.vy)
-            self.map.update(-self.vx, -self.vy)
-            # self.moving_monster(-self.vx, -self.vy)
+            self.moving(-self.vx, -self.vy)
         elif self.player_1.is_collision_players(self.others_players):
-            self.player_1.update(-self.vx, -self.vy, self.t)
-            self.fondo.update(-self.vx, -self.vy)
-            self.map.update(-self.vx, -self.vy)
-            # self.moving_monster(-self.vx, -self.vy)
-        elif self.player_1.is_collision_monsters(self.monsters):
-            self.fondo.update(-self.vx, -self.vy)
-            self.map.update(-self.vx, -self.vy)
-            # self.moving_monster(-self.vx, -self.vy)
+            self.player_1.update(-self.vx*2, -self.vy*2, self.t)
+            self.moving(-self.vx, -self.vy)
+        elif self.player_1.is_collision_monsters(self.map.list_monsters):
+            self.moving(-self.vx, -self.vy)
             self.player_1.change_image_explosion()
             config.QUIT_FLAG = True
-            """
-                Envia la señal de desconexion al server para que nos borre del mismo.
-                Esto se procesara en el metedo Close() de ClientChannel.
-            """
+            # Envia la señal de desconexion al server para que nos borre del mismo.
+            # Esto se procesara en el metedo Close() de ClientChannel.
             connection.Close()
             print self.print_sequence(), "Desconetado del Server..."
         elif self.player_1.is_collision_port(self.map.port):
@@ -89,15 +84,18 @@ class SceneGame(scene.Scene, ConnectionListener):
 
             self.map_number += 1
             self.next_map(self.map_number, self.player_1.id)
+        elif self.player_1.heart <= 0:
+            self.player_1.change_image_explosion()
+            config.QUIT_FLAG = True
         else:
-            # 3°) Ahora comprobamos que si el fondo se mueve saliendose de la pantalla entonces que se empieze a mover el player
+            # 3°) Ahora comprobamos que si el fondo se mueve saliendose de la pantalla entonces que se empieze a mover
+            #  el player
             if self.fondo.rect.left > 0 \
                     or self.fondo.rect.right < config.SCREEN_WIDTH \
                     or self.fondo.rect.top > 0 \
                     or self.fondo.rect.bottom < config.SCREEN_HEIGHT:  # Si el fondo se quiere desprender de la izquierda de la pantalla or de la derecha o arriba o abajo.
-                self.fondo.update(-self.vx, -self.vy)  #No se mueve. Regrega una direccion
-                self.map.update(-self.vx, -self.vy)  # No se mueve. Regrega una direccion
-                # self.moving_monster(-self.vx, -self.vy)
+                # No se mueve. Regrega una direccion
+                self.moving(-self.vx, -self.vy)
                 self.player_1.update(self.vx, self.vy, self.t)  # Se mueve. Porque nunca le indicamos que se moviera
             else:
                 self.player_1.update(self.vx / 2, self.vy / 2,
@@ -109,7 +107,16 @@ class SceneGame(scene.Scene, ConnectionListener):
                     or self.player_1.rect.top == 0 \
                     or self.player_1.rect.bottom > config.SCREEN_HEIGHT:
                 self.player_1.update(-self.vx, -self.vy, self.t)
-        #---------------------------------------------------------------------------------------------------------
+        # ---------------------------------------------------------------------------------------------------------
+
+        for f in self.list_flechas_player:
+            if f.is_collision_brick(self.map.list_brick) or\
+                    f.is_collision_monsters(self.map.list_monsters) or\
+                    f.is_collision_screen():
+                del self.list_flechas_player[self.list_flechas_player.index(f)]
+            else:
+                f.update()
+        # ---------------------------------------------------------------------------------------------------------
 
         if self.run:
             """
@@ -133,7 +140,8 @@ class SceneGame(scene.Scene, ConnectionListener):
             x = abs(self.fondo.rect.left) + self.player_1.rect.left
             y = abs(self.fondo.rect.top) + self.player_1.rect.top
 
-            self.Send({"action": "updatemoving", "map": self.map_number, "x": x, "y": y, "id_player": self.player_1.id, "orientation": self.player_1.orientation, "image": self.player_1.image_current})
+            self.Send({"action": "updatemoving", "map": self.map_number, "x": x, "y": y, "id_player": self.player_1.id,
+                       "orientation": self.player_1.orientation, "image": self.player_1.image_current})
             sleep(0.01)
 
     def on_event(self, events):
@@ -155,6 +163,25 @@ class SceneGame(scene.Scene, ConnectionListener):
                 if event.key == pygame.K_DOWN:
                     self.down_sigueapretada = True
                     self.vy = speed_game
+                if event.key == pygame.K_a:
+                    o = self.player_1.orientation
+                    # La orientacion del player esta desactualizada cuando entra en esta metodo.
+                    # Viene con un valor menos por defecto. Por eso sumamos uno.
+                    o += 1
+                    x = self.player_1.rect.centerx
+                    y = self.player_1.rect.centery
+
+                    fl = flecha.Flecha(o, x ,y)
+                    self.list_flechas_player.append(fl)
+
+                    # De la misma manera que sucede con el player ... debemos enviar la posicion x e y de la flecha con
+                    # respecto al eje de coordenadas del fondo. Porque no sabemos en que parte de la pantalla esta cada
+                    # player.
+                    x = abs(self.fondo.rect.left) + fl.rect.left
+                    y = abs(self.fondo.rect.top) + fl.rect.top
+
+                    self.Send({"action": "launchflecha", "map": self.map_number, "id_player": self.player_1.id,
+                               "orientation": o, "x": x, "y": y})
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
@@ -185,6 +212,8 @@ class SceneGame(scene.Scene, ConnectionListener):
                         self.vy = -speed_game
                     else:
                         self.vy = 0
+                if event.key == pygame.K_a:
+                    continue
 
         self.t += 1
 
@@ -197,29 +226,30 @@ class SceneGame(scene.Scene, ConnectionListener):
         self.map.draw(screen)
         self.player_1.draw(screen)
 
-        # Part for Server - Dibuja todos los players online que estan en el server.
-        if not self.others_players == None:
+        if not self.others_players is None:
             for p in self.others_players:
                 p.draw(screen)
 
-        # Dibuja todos los moustros que estan en el server.
-        if not self.monsters == None:
-            for m in self.monsters:
-                m.draw(screen)
-
-        if config.QUIT_FLAG == True:  # Termino el juego
+        if config.QUIT_FLAG is True:  # Termino el juego
             text = self.font.render("GAME OVER", 0, config.COLOR_BLACK)
             screen.blit(text, (100, 240))
 
-    def moving(self):
-        self.fondo.update(self.vx, self.vy)
-        self.map.update(self.vx, self.vy)
-        # self.moving_monster(self.vx, self.vy)
+        for f in self.list_flechas_player:
+            f.draw(screen)
 
-    """ Implementacion para moustros estaticos. """
-    def moving_monster(self, vx, vy):
-        for m in self.monsters:
-            m.update(vx, vy)
+        self.heart.draw(screen)
+
+        text = self.font_heart.render(str(self.player_1.heart), 0, config.COLOR_DARKRED)
+        screen.blit(text, (config.SCREEN_WIDTH - 60, 10))
+
+    def moving(self, vx, vy):
+        """ Mueve los componentes del mapa y el fondo. Si se pasa un valor negativo se mueve en sentido contrario.
+        :param vx: Velocidad a mover en x.
+        :param vy: Velocidad a mover en y.
+        :return: None
+        """
+        self.fondo.update(vx, vy)
+        self.map.update(vx, vy)
 
     ##############################################
     # PARTE SERVER #
@@ -245,7 +275,7 @@ class SceneGame(scene.Scene, ConnectionListener):
         print self.print_sequence(), "Recibo de Logueo ..."
 
         id = data["id_player"]
-        if id == 0: #Logueo Fallado.
+        if id == 0:  # Logueo Fallado.
             print self.print_sequence(), "Logueo Fallado...."
             exit()
         else:
@@ -263,13 +293,21 @@ class SceneGame(scene.Scene, ConnectionListener):
         self.fondo = fondo.Fondo(config.PATH_BACKS + data["background"])
         print self.print_sequence(), "Recibo de Mapa..."
 
+        self.Send({"action": "monsters"})
+        print self.print_sequence(), "Pedido de Moustros..."
+
+    def Network_initgame(self, data):
+        """ 6º) Respuesta del server de Inicio de Juego.
+        :param data: Iniciar juego.
+        :return: None
+        """
+
         # Iniciamos el juego !!!!
         self.run = True
         print self.print_sequence(), "JUEGO INICIADO EXITOSAMENTE ...."
 
     """ Metodo que actualiza la posicion de los demas players. """
     def Network_updateplayers(self, data):
-
         id = int(data["id_player"])
         x = int(data["x"])
         y = int(data["y"])
@@ -285,7 +323,6 @@ class SceneGame(scene.Scene, ConnectionListener):
         for p in self.others_players:
             if (p.id == id):
                 return p
-
 
     """ Metodo que se ejecuta cuando se conecta un nuevo player al server. """
     def Network_newplayer(self, data):
@@ -310,20 +347,19 @@ class SceneGame(scene.Scene, ConnectionListener):
         y = int(data["y"])
 
         p = player.Player(id, nickname)
+        p.heart = 6
 
         self.others_players.append(p)
         p.server_update(self.fondo.rect.left + x, self.fondo.rect.top + y, 0, 0)
         print self.print_sequence(), "Recibiendo y creando informacion de Player: ", nickname
 
     def Network_newmonster(self, data):
-
         id = int(data["id_monster"])
         x = int(data["x"])
         y = int(data["y"])
 
-        m = mounstro.Mounstro(id, x, y)
-
-        self.monsters.append(m)
+        if not self.map is None:
+            self.map.append_monster(id, x, y)
 
         print self.print_sequence(), "Recibiendo y Creacion informacion de Moustro:", id, "x:", x, "y:", y
 
@@ -360,19 +396,32 @@ class SceneGame(scene.Scene, ConnectionListener):
         self.Send({"action": "nextmap", "map": map, "id_player": id_player})
         self.run = False
 
-    def get_monster(self, id):
-        for m in self.monsters:
-            if (m.id == id):
-                return m
-
     def Network_updatemonters(self, data):
         id = int(data["id_monster"])
-        x = int(data["x"])
-        y = int(data["y"])
+        x = int(data["x"]) + self.fondo.rect.left
+        y = int(data["y"]) + self.fondo.rect.top
         o = int(data["orientation"])
         t = int(data["t"])
 
-        m = self.get_monster(id)
-        if m == None: return
-        m.server_update(self.fondo.rect.left + x, self.fondo.rect.top + y, o, t)
+        self.map.update_monster(id, x, y, o, t)
 
+    def Network_reciveflecha(self, data):
+        """ Metodo que llama el server para enviar los datos de la flecha que se han disparado en este mapa.
+        :param data: Datos de la flecha.
+        :return: None
+        """
+        orientation = int(data["orientation"])
+        x = int(data["x"]) + self.fondo.rect.left
+        y = int(data["y"]) + self.fondo.rect.top
+
+        self.map.append_flecha(orientation, x, y)
+
+    def collide_flechas_otherplayer(self):
+        """ Metodo que verifica si hay colisiones de las flechas del player con los otros players.
+        De ser asi ... borra la flechas del mapa.
+        :return: None
+        """
+        for f in self.list_flechas_player:
+            for p in self.others_players:
+                if f.rect.colliderect(p.rect):
+                    del self.list_flechas_player[self.list_flechas_player.index(f)]
